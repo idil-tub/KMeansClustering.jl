@@ -2,5 +2,5 @@ using KMeansClustering
 using Test
 
 @testset "KMeansClustering.jl" begin
-    # Write your tests here.
+    @test addFunctionality() == 5
 end
