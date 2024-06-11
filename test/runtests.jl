@@ -1,5 +1,9 @@
 using Pkg
+Pkg.add("Random")
 Pkg.add("BenchmarkTools")
+Pkg.add("Statistics")
+Pkg.add("Plots")
+Pkg.add("DataFrames")
 using KMeansClustering
 # using Clustering
 using Random
