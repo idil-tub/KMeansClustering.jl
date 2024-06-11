@@ -39,3 +39,27 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+      
+      # Upload images
+      - name: Upload images
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: cluster-images-and-comment
+          path: |
+            test/test_plot/clusters_small.png
+            test/test_plot/clusters_large.png
+            test/test_plot/clusters_missing.png
+            test/test_plot/clusters_outlier.png
+            test/test_plot/comment.md
+
+
+      # Post PR Comment from Artifact
+      - name: Post PR Comment from Artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: live-codes/pr-comment-from-artifact@v1.0.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          artifact: cluster-images-and-comment
+
+
