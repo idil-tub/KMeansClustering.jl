@@ -1,3 +1,5 @@
+using Pkg
+Pkg.add("BenchmarkTools")
 using KMeansClustering
 # using Clustering
 using Random
