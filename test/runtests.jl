@@ -91,6 +91,7 @@ end
         # Plot and save image
         plot_clusters(data_small, assignments_result_small, "Clusters for Small Dataset", joinpath(output_dir, "clusters_small.png"))
     catch e
+        @info e
         @test false 
         println("Error during testing small dataset: ", e)
     end
@@ -108,6 +109,7 @@ end
         assignments_subset = assignments_result_large[1:2]
         plot_clusters(subset, assignments_subset, "Clusters for Large Dataset(Subset)", joinpath(output_dir, "clusters_large(subset).png"))
     catch e
+        @info e
         @test false
         println("Error during testing large dataset: ", e)
     end
@@ -119,6 +121,7 @@ end
         @test length(assignments_result_missing) == size(data_missing, 2)
         plot_clusters(data_missing, assignments_result_missing, "Clusters for Dataset with Missing Values", joinpath(output_dir, "clusters_missing.png"))
     catch e
+        @info e
         @test false
         println("Error during testing dataset with missing values: ", e)
     end
@@ -130,6 +133,7 @@ end
         @test length(assignments_result_outlier) == size(data_outlier, 2)
         plot_clusters(data_outlier, assignments_result_outlier, "Clusters for Dataset with Outliers", joinpath(output_dir, "clusters_outlier.png"))
     catch e
+        @info e
         @test false
         println("Error during testing dataset with outliers: ", e)
     end
@@ -155,6 +159,7 @@ generate_markdown()
         ari_small = randindex(true_labels_small, assignments_result)
         println("ARI for small dataset: ", ari_small)
     catch e
+        @info e
         println("Error during ARI calculation for small dataset: ", e)
         @test false
     end
@@ -166,6 +171,7 @@ generate_markdown()
         ari_large = randindex(true_labels_large, assignments_result)
         println("ARI for large dataset: ", ari_large)
     catch e
+        @info e
         println("Error during ARI calculation for large dataset: ", e)
         @test false
     end
@@ -177,6 +183,7 @@ generate_markdown()
         ari_missing = randindex(true_labels_missing, assignments_result)
         println("ARI for dataset with missing values: ", ari_missing)
     catch e
+        @info e
         println("Error during ARI calculation for dataset with missing values: ", e)
         @test false
     end
@@ -188,6 +195,7 @@ generate_markdown()
         ari_outlier = randindex(true_labels_outlier, assignments_result)
         println("ARI for dataset with outliers: ", ari_outlier)
     catch e
+        @info e
         println("Error during ARI calculation for dataset with outliers: ", e)
         @test false
     end
