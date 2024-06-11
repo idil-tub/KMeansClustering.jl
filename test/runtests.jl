@@ -1,4 +1,3 @@
-using Pkg
 # using KMeansClustering
 using Clustering
 using Random
