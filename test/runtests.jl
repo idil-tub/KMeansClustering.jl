@@ -9,7 +9,7 @@ using DataFrames
 
 # make sure that test_plot is existed
 output_dir = "test/test_plot"
-isdir(output_dir) || mkdir(output_dir)
+# isdir(output_dir) || mkdir(output_dir)
 
 
 # Prepare Dataset
