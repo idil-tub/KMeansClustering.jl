@@ -1,6 +1,5 @@
-using Pkg
-using KMeansClustering
-# using Clustering
+# using KMeansClustering
+using Clustering
 using Random
 using BenchmarkTools
 using Test
