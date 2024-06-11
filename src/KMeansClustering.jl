@@ -8,14 +8,14 @@ import LinearAlgebra.norm
 import Statistics.mean
 
 const NonInteger = Core.Real
-abstract type ClusterInit{V<:AbstractArray{<:NonInteger}} end
+abstract type ClusterInit{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
 
-function (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:AbstractArray{T,N}}
+function (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     error("Method initialize not implemented for $(typeof(c))")
 end
 
-struct UniformRandomInit{V<:AbstractArray{<:NonInteger}} <: ClusterInit{V} end
-function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:AbstractArray{T,N}}
+struct UniformRandomInit{V<:Union{AbstractArray{<:NonInteger}, <:NonInteger}} <: ClusterInit{V} end
+function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     dims = size(samples[1])
     min_bounds = fill(typemax(T), dims...)
     max_bounds = fill(typemin(T), dims...)
@@ -39,7 +39,7 @@ end
 
 
 # partially lifted from https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans
-function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd)::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:AbstractArray{T,N}}
+function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd)::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     centers = init(x, k)
     iter = 0
     err = typemax(T)
@@ -60,7 +60,7 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
     return return Dict(zip(centers, clusters))
 end
 
-function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:AbstractArray{T,N}}
+function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     num_clusters = length(init)
     clusters = [Vector{V}() for _ in 1:num_clusters]
     for x in xs
@@ -78,7 +78,7 @@ function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{V
     return clusters
 end
 
-function calculateCenter(xs::AbstractVector{V})::V where {T<:NonInteger,N,V<:AbstractArray{T,N}}
+function calculateCenter(xs::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     return mean(xs)
 end
 
