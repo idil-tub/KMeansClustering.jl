@@ -52,6 +52,7 @@ jobs:
             test/test_plot/comment.md
   post_comment:
     name: Report ${{ github.event_name }}
+    needs: test
     runs-on: ubuntu-latest
     container: docker://ghcr.io/iterative/cml:0-dvc2-base1
     steps:
