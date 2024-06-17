@@ -41,26 +41,36 @@ jobs:
       # Upload images
       - name: Upload images
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cluster-images-and-comment
           path: |
-            test/test_plot/clusters_small.png
-            test/test_plot/clusters_large.png
-            test/test_plot/clusters_missing.png
-            test/test_plot/clusters_outlier.png
-            test/test_plot/comment.md
+            test/test_plot/**
   post_comment:
     name: Report ${{ github.event_name }}
     needs: test
+    permissions:
+      actions: read
+      issues: write
+      pull-requests: write
+      contents: read
     runs-on: ubuntu-latest
     container: docker://ghcr.io/iterative/cml:0-dvc2-base1
     steps:
-      - name: Download artifact
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: cluster-images-and-comment
-      - name: Display structure of data
+          path: ./test/test_plot/
+      - name: view files
         run: ls -R
-
+      - name: Post Comment
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create CML report
+          cat ./build/metrics.txt >> report.md
+          echo '![](./build/file.png "Confusion Matrix")' >> report.md
+          cml comment create report.md
 
