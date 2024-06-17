@@ -11,7 +11,7 @@ using DataFrames
 
 println(pwd())
 # make sure that test_plot is existed
-output_dir = "test/test_plot"
+output_dir = "test_plot"
 isdir(output_dir) || mkpath(output_dir)
 
 
