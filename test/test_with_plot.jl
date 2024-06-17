@@ -7,9 +7,6 @@ using Statistics
 using Plots
 using DataFrames
 
-ENV["PLOTS_TEST"] = "true"
-ENV["GKSwstype"] = "100"
-
 
 
 println(pwd())
