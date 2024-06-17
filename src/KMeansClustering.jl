@@ -16,10 +16,16 @@ end
 
 struct UniformRandomInit{V<:Union{AbstractArray{<:NonInteger}, <:NonInteger}} <: ClusterInit{V} end
 function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
-    dims = size(samples[1])
+    if samples isa AbstractVector{<:NonInteger}
+        x = map(el -> [el], samples)
+    else
+        x = samples
+    end
+    dims = size(x[1])
+
     min_bounds = fill(typemax(T), dims...)
     max_bounds = fill(typemin(T), dims...)
-    for sample in samples
+    for sample in x
         min_bounds = min.(min_bounds, sample)
         max_bounds = max.(max_bounds, sample)
     end
@@ -29,8 +35,11 @@ function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector
         return rand(dist)
     end
 
-
-    return [collect(map(generateSample, min_bounds, max_bounds)) for _ in 1:k]
+    ret = [collect(map(generateSample, min_bounds, max_bounds)) for _ in 1:k]
+    if samples isa AbstractVector{<:NonInteger}
+        ret = map(el -> el[1], x)
+    end
+    return ret
 end
 
 @enum KMeansAlgorithm begin
@@ -40,6 +49,14 @@ end
 
 # partially lifted from https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans
 function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd)::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+    if length(x) == 0
+        return Dict([])
+    end
+    if k <= 0
+        throw(ArgumentError("k has to be > 0"))
+    end
+              
     centers = init(x, k)
     iter = 0
     err = typemax(T)
