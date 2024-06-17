@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: cluster-images-and-comment
-          path: ./test/test_plot/
+          path: ./test/test/test_plot/*.png
       - name: view files
         run: ls -R
       - name: Post Comment
@@ -70,7 +70,5 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create CML report
-          cat ./build/metrics.txt >> report.md
-          echo '![](./build/file.png "Confusion Matrix")' >> report.md
-          cml comment create report.md
+          cml comment create ./test/test/test_plot/report.md
 

@@ -1,2 +1,3 @@
 /Manifest.toml
 .vscode/**
+/test/test/test_plot/*.png
