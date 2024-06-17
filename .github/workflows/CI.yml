@@ -39,6 +39,8 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
       
       # Upload images
+      - name: view files
+        run: ls -R
       - name: Upload images
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
