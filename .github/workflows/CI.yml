@@ -47,7 +47,7 @@ jobs:
         with:
           name: cluster-images-and-comment
           path: |
-            test/test_plot/**
+            ./test/test/test_plot/*.png
   post_comment:
     name: Report ${{ github.event_name }}
     needs: test
