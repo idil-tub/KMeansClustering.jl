@@ -24,8 +24,6 @@ jobs:
       matrix:
         version:
           - '1.10'
-          - '1.6'
-          - 'nightly'
         os:
           - ubuntu-latest
         arch:
@@ -52,14 +50,16 @@ jobs:
             test/test_plot/clusters_missing.png
             test/test_plot/clusters_outlier.png
             test/test_plot/comment.md
-
-
-      # Post PR Comment from Artifact
-      - name: Post PR Comment from Artifact
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: live-codes/pr-comment-from-artifact@v1.0.1
+  post_comment:
+    name: Report ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    container: docker://ghcr.io/iterative/cml:0-dvc2-base1
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          artifact: cluster-images-and-comment
+          name: cluster-images-and-comment
+      - name: Display structure of data
+        run: ls -R
 
 
