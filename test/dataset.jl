@@ -5,11 +5,11 @@ using CSV
 using Plots
 
 # make directory for save images
-mkpath(".\\src\\image")
+mkpath(".\\test\\image")
 
 # create image from dataset
 function createImage(data::DataFrame, folder_name::String, combine::Bool=true)
-    mkpath(".\\src\\image\\$folder_name")
+    mkpath(".\\test\\image\\$folder_name")
     plot_list = []
     data_feature_size = size(data, 2)
     font_size = 60/data_feature_size
@@ -34,7 +34,7 @@ function createImage(data::DataFrame, folder_name::String, combine::Bool=true)
                 plot_name = string(names(data)[i], "_", names(data)[j])
                 p = plot(xlabel=names(data)[i], ylabel=names(data)[j])
                 scatter!(p, data[:, i], data[:, j])
-                savefig(p, ".\\src\\image\\$folder_name\\$plot_name.png")
+                savefig(p, ".\\test\\image\\$folder_name\\$plot_name.png")
                 push!(plot_list, p) 
             end
         end
@@ -43,7 +43,7 @@ function createImage(data::DataFrame, folder_name::String, combine::Bool=true)
         img_length = data_feature_size * 800
         img_width = data_feature_size * 600
         combined_wine_plot = plot(plot_list..., layout=(data_feature_size, data_feature_size), size=(img_length, img_width))
-        savefig(combined_wine_plot, ".\\src\\image\\$folder_name\\combined_$folder_name.png")
+        savefig(combined_wine_plot, ".\\test\\image\\$folder_name\\combined_$folder_name.png")
     end
 end
 
@@ -62,7 +62,7 @@ function wine_dataset()
     # wine
     # there are 13 feature: Alcohol,Malic.acid,Ash,Acl,Mg,Phenols,Flavanoids,Nonflavanoid.phenols,Proanth,Color.int,Hue,OD,Proline
     url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
-    data_path = ".\\src\\wine.csv"
+    data_path = ".\\test\\wine.csv"
     HTTP.download(url, data_path)
 
     wine_df = CSV.read(data_path, DataFrame)
@@ -94,3 +94,4 @@ function circle()
     return y_circles, X_circles_df 
 end
 
+# TSNE
