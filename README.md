@@ -4,7 +4,22 @@
 
 ## Installation
 
+You can install `KMeansClustering.jl` by adding it directly from our GitHub repository. Here are the steps:
 
+1. Open Julia's REPL (the Julia command-line interface).
+
+2. Press `]` to enter Pkg mode (the prompt should change to `pkg>`).
+
+3. Run the following command to add `KMeansClustering.jl`:
+
+```julia
+pkg> add https://github.com/idil-tub/KMeansClustering.jl.git
+```
+
+ 4. Once installed, you can import the package and start using it.
+```julia
+using KMeansClustering
+```
 
 ## Usage
 
@@ -18,7 +33,7 @@ data_vec = [data[:, i] for i in 1:size(data, 2)]
 # Perform k-means clustering
 k = 3
 max_iter = 100
-tol = 0.001
+tol = 0.0001
 clusters = KMeans(data_vec, k; max_iter=max_iter, tol=tol)
 
 # Print cluster centers and their members
@@ -29,8 +44,6 @@ end
 
 ```
 
-## Contributing
 
 
 
-## License
