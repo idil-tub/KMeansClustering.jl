@@ -24,8 +24,6 @@ jobs:
       matrix:
         version:
           - '1.10'
-          - '1.6'
-          - 'nightly'
         os:
           - ubuntu-latest
         arch:
@@ -39,3 +37,40 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+      
+      # Upload images
+      - name: view files
+        run: ls -R
+      - name: Upload images
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cluster-images-and-comment
+          path: |
+            ./test/test_plot/*
+  post_comment:
+    name: Report ${{ github.event_name }}
+    needs: test
+    permissions:
+      actions: read
+      issues: write
+      pull-requests: write
+      contents: read
+    runs-on: ubuntu-latest
+    container: docker://ghcr.io/iterative/cml:0-dvc2-base1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cluster-images-and-comment
+          path: ./test/test_plot/
+      - name: view files
+        run: ls -R
+      - name: Post Comment
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create CML report
+          cml comment create ./test/test_plot/comment.md
+
