@@ -1,6 +1,6 @@
 using KMeansClustering
 using Test
 
-@testset "test_with_plot.jl" begin
-    include("test_with_plot.jl")
+@testset "KMeansClustering.jl" begin
+    # Write your tests here.
 end
