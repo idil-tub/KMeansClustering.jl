@@ -142,4 +142,4 @@ end
 
 export KMeans, ClusterInit, UniformRandomInit, buildClusters, calculateCenter
 
-end  # module
+end
