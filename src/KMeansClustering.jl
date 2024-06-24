@@ -75,7 +75,7 @@ function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{
 end
 
 struct EuclideanNorm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: Norm{V} end
-function (c::EuclideanNorm{V})(x: V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function (c::EuclideanNorm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     return la_norm(x)
 end
 
