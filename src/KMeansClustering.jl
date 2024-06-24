@@ -108,7 +108,7 @@ function KMeans(
     max_iter=300, 
     tol=0.0001, 
     algorithm::KMeansAlgorithm=Lloyd, 
-    centroid::EuclideanMeanCentroid{V}=EuclideanCentroid{V},
+    centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V},
     norm::Norm{V}=EuclideanNorm{V},
     )::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     if length(x) == 0
@@ -162,6 +162,6 @@ function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{V
     return clusters
 end
 
-export KMeans, ClusterInit, UniformRandomInit, CentroidCalculator, EuclideanCentroid
+export KMeans, ClusterInit, UniformRandomInit, CentroidCalculator, EuclideanMeanCentroid
 
 end
