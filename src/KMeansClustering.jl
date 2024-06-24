@@ -101,16 +101,7 @@ Arguments:
 
 Returns a dictionary mapping each cluster center to its assigned samples.
 """
-function KMeans(
-    x::AbstractVector{V}, 
-    k::Int64; 
-    init::ClusterInit{V}=UniformRandomInit{V}(), 
-    max_iter=300, 
-    tol=0.0001, 
-    algorithm::KMeansAlgorithm=Lloyd, 
-    centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V},
-    norm::Norm{V}=EuclideanNorm{V},
-    )::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd, centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), norm::Norm{V}=EuclideanNorm{V}())::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     if length(x) == 0
         return Dict([])
     end
@@ -123,14 +114,14 @@ function KMeans(
 
     clusters = []
     while iter < max_iter && err > tol
-        clusters = buildClusters(x, centers)
+        clusters = buildClusters(x, centers, norm)
         for i in 1:length(clusters)
             if length(clusters[i]) == 0
                 clusters[i] = [rand(x)]
             end
         end
         new_centers = centroid.(clusters)
-        err = norm(centers .- new_centers)
+        err = sum(norm.(centers .- new_centers))
         centers = new_centers
         iter += 1
     end
@@ -138,13 +129,13 @@ function KMeans(
 end
 
 """
-    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}}
+    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}}
 
 Assigns each sample in `xs` to the nearest cluster center in `init`.
 
 Returns a vector of clusters, where each cluster is a vector of samples.
 """
-function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}, norm::Norm{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     num_clusters = length(init)
     clusters = [Vector{V}() for _ in 1:num_clusters]
     for x in xs
