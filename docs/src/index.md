@@ -4,7 +4,7 @@ CurrentModule = KMeansClustering
 
 # KMeansClustering
 
-Documentation for [MyPackage](https://github.com/idil-tub/KMeansClustering.jl).
+Documentation for [KMeansClustering](https://github.com/idil-tub/KMeansClustering.jl).
 
 
 ```@index

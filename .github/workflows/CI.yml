@@ -106,7 +106,7 @@ jobs:
         shell: julia --project=docs --color=yes {0}
         run: |
           using Documenter: DocMeta, doctest
-          using MyPackage
-          DocMeta.setdocmeta!(MyPackage, :DocTestSetup, :(using MyPackage); recursive=true)
-          doctest(MyPackage)
+          using KMeansClustering
+          DocMeta.setdocmeta!(KMeansClustering, :DocTestSetup, :(using KMeansClustering); recursive=true)
+          doctest(KMeansClustering)
 
