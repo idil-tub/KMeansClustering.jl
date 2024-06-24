@@ -70,7 +70,7 @@ function (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V})::V where {T<:
 end
 
 abstract type Norm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
-function (c::Norm{V})(x: V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     error("Method initialize not implemented for $(typeof(c))")
 end
 
