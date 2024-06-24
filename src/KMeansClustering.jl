@@ -140,7 +140,6 @@ function calculateCenter(xs::AbstractVector{V})::V where {T<:NonInteger,N,V<:Uni
     return mean(xs)
 end
 
-# Exported from the module
 export KMeans, ClusterInit, UniformRandomInit, buildClusters, calculateCenter
 
 end  # module
