@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(KMeansClustering, :DocTestSetup, :(using KMeansClustering); 
 
 makedocs(;
     modules=[KMeansClustering],
-    authors=["Idil Bilge Can", "Yifan Zheng", "Lu-Wen Wang", "Tristan Kobusch"],
+    authors="Idil Bilge Can, Yifan Zheng, Lu-Wen Wang, Tristan Kobusch",
     sitename="KMeansClustering.jl",
     format=Documenter.HTML(;
         canonical="https://idil-tub.github.io/KMeansClustering.jl",
