@@ -4,7 +4,7 @@ import Distributions.Distribution
 import Distributions.Uniform
 import Distributions.rand
 import Random.AbstractRNG
-import LinearAlgebra.norm
+import LinearAlgebra.norm as la_norm
 import Statistics.mean
 
 const NonInteger = Core.Real
@@ -58,6 +58,28 @@ function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector
     return ret
 end
 
+
+abstract type CentroidCalculator{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
+function (c::CentroidCalculator{V})(samples::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    error("Method initialize not implemented for $(typeof(c))")
+end
+
+struct EuclideanMeanCentroid{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: CentroidCalculator{V} end
+function (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    return mean(samples)
+end
+
+abstract type Norm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
+function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    error("Method initialize not implemented for $(typeof(c))")
+end
+
+struct EuclideanNorm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: Norm{V} end
+function (c::EuclideanNorm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    return la_norm(x)
+end
+
+
 @enum KMeansAlgorithm begin
     Lloyd
 end
@@ -74,10 +96,12 @@ Arguments:
 - `max_iter`: Maximum number of iterations. Default is 300.
 - `tol`: Tolerance for convergence. Default is 0.0001.
 - `algorithm`: K-means algorithm to use. Default is `Lloyd`.
+- `centroid`: Used to calculate center of each cluster. Default `EuclideanMeanCentroid`
+- `norm`: Used to assign clusters to samples. Default `EuclideanNorm`
 
 Returns a dictionary mapping each cluster center to its assigned samples.
 """
-function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd)::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd, centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), norm::Norm{V}=EuclideanNorm{V}())::Dict{V, Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     if length(x) == 0
         return Dict([])
     end
@@ -90,14 +114,14 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
 
     clusters = []
     while iter < max_iter && err > tol
-        clusters = buildClusters(x, centers)
+        clusters = buildClusters(x, centers, norm)
         for i in 1:length(clusters)
             if length(clusters[i]) == 0
                 clusters[i] = [rand(x)]
             end
         end
-        new_centers = calculateCenter.(clusters)
-        err = norm(centers .- new_centers)
+        new_centers = centroid.(clusters)
+        err = sum(norm.(centers .- new_centers))
         centers = new_centers
         iter += 1
     end
@@ -105,13 +129,13 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
 end
 
 """
-    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}}
+    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}}
 
 Assigns each sample in `xs` to the nearest cluster center in `init`.
 
 Returns a vector of clusters, where each cluster is a vector of samples.
 """
-function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     num_clusters = length(init)
     clusters = [Vector{V}() for _ in 1:num_clusters]
     for x in xs
@@ -129,17 +153,6 @@ function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V})::Vector{V
     return clusters
 end
 
-"""
-    calculateCenter(xs::AbstractVector{V})::V
-
-Calculates the center of the cluster `xs`.
-
-Returns the calculated center.
-"""
-function calculateCenter(xs::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
-    return mean(xs)
-end
-
-export KMeans, ClusterInit, UniformRandomInit, buildClusters, calculateCenter
+export KMeans, ClusterInit, UniformRandomInit, CentroidCalculator, EuclideanMeanCentroid
 
 end
