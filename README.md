@@ -2,6 +2,9 @@
 
 [![Build Status](https://github.com/idil-tub/KMeansClustering.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/idil-tub/KMeansClustering.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
+[![Code Coverage](https://codecov.io/github/idil-tub/KMeansClustering.jl/graph/badge.svg?token=MVVT1D4HSD)](https://codecov.io/github/idil-tub/KMeansClustering.jl)
+
+
 The KMeansClustering package provides an implementation of the K-means clustering algorithm, allowing for the partitioning of a dataset into k clusters. It includes customizable initialization methods for cluster centers and supports different K-means algorithms.
 
 ## Installation
