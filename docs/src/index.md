@@ -41,7 +41,7 @@ k = 3
 max_iter = 100
 tol = 0.0001
 clusters = KMeans(X_iris_vec, k; max_iter=max_iter, tol=tol)
-display(clusters)
+clusters # hide
 ```
 ```@example 1
 # Plot the result
@@ -60,6 +60,6 @@ for (i, (centers, members)) in enumerate(clusters)
     scatter!(p, [centers[1]], [centers[2]], color=color_palette[i], marker=:star, markersize=10, label="Center $i")
 
 end
-
-display(p)
+savefig(p, "two_dim_kmeans_iris.svg"); nothing # hide
 ```
+![](two_dim_kmeans_iris.svg)
