@@ -19,6 +19,8 @@ Modules = [KMeansClustering]
 ```@example 1
 using KMeansClustering
 using MLJ
+using DataFrames
+using Plots
 
 # Load Iris data
 models() 
