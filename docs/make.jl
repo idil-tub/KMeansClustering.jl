@@ -1,6 +1,15 @@
 using KMeansClustering
 using Documenter
 
+using Pkg
+Pkg.add(["MLJ", "DataFrames", "Plots"])
+
+# Precompile added packages
+using MLJ
+using DataFrames
+using Plots
+
+
 DocMeta.setdocmeta!(KMeansClustering, :DocTestSetup, :(using KMeansClustering); recursive=true)
 
 makedocs(;

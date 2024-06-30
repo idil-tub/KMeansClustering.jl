@@ -22,6 +22,9 @@ using MLJ
 using DataFrames
 using Plots
 
+ENV["GKSwstype"] = "100" # hide
+gr() # hide
+
 # Load Iris data
 models() 
 data = load_iris()
