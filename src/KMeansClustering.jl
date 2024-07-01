@@ -2,6 +2,7 @@ module KMeansClustering
 
 import Distributions.Distribution
 import Distributions.Uniform
+import Distributions.Categorical
 import Distributions.rand
 import Random.AbstractRNG
 import LinearAlgebra.norm as la_norm
@@ -9,26 +10,48 @@ import Statistics.mean
 
 const NonInteger = Core.Real
 
+
+abstract type Norm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
+
+"""
+    (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+Calculates the norm of `x`. Overwrite in your own subtypes of `Norm`.
+"""
+function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    error("Method initialize not implemented for $(typeof(c))")
+end
+
+struct EuclideanNorm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: Norm{V} end
+"""
+    (c::EuclideanNorm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+Calculates the euclidean norm of `x`. 
+"""
+function (c::EuclideanNorm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    return la_norm(x)
+end
+
 abstract type ClusterInit{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
 
 """
-    initialize(c::ClusterInit{V}, samples::AbstractVector{V}, k::Int64)::Vector{V}
+    (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
 
-Initializes `k` cluster centers from `samples` using the cluster initialization method `c`.
+Initializes `k` cluster centers from `samples` using the cluster initialization method `c`. Overwrite in your subtypes of ClusterInit
 
 """
-function (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     error("Method initialize not implemented for $(typeof(c))")
 end
 
 """
-    initialize(c::UniformRandomInit{V}, samples::AbstractVector{V}, k::Int64)::Vector{V}
+    (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
 
-Initializes `k` cluster centers from `samples` using a uniform random distribution.
+Initializes `k` cluster centers from `samples` using a uniform random distribution, over the bounding hyperrectangle of the samples
 """
 struct UniformRandomInit{V<:Union{AbstractArray{<:NonInteger}, <:NonInteger}} <: ClusterInit{V} end
 
-function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     if samples isa AbstractVector{<:NonInteger}
         x = map(el -> [el], samples)
     else
@@ -50,33 +73,62 @@ function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector
     end
 
     ret = [collect(map(generateSample, min_bounds, max_bounds)) for _ in 1:k]
-    
     if samples isa AbstractVector{<:NonInteger}
-        ret = map(el -> el[1], x)
+        ret = map(el -> el[1], ret)
     end
-    
     return ret
 end
 
 
+struct KMeansPPInit{V<:Union{AbstractArray{<:NonInteger}, <:NonInteger}} <: ClusterInit{V} end
+
+"""
+    (c::KMeansPPInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+Perform K-means++ initialization to select initial cluster centers.
+
+"""
+function (c::KMeansPPInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+    centers = []
+    n = length(samples)
+    probabilities = fill(1/n, n)
+    while length(centers) < k
+        push!(centers, samples[rand(Categorical(probabilities))])
+        total_distance = 0.0
+        for (i, sample) in enumerate(samples)
+            min_dist_sq = Inf
+            for center in centers
+                dist_sq = norm(sample-center)^2
+                min_dist_sq = min(min_dist_sq, dist_sq)
+            end
+            probabilities[i] = min_dist_sq
+            total_distance += min_dist_sq
+        end
+        probabilities /= total_distance
+    end
+    return centers
+end
+
+
 abstract type CentroidCalculator{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
-function (c::CentroidCalculator{V})(samples::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+"""
+    (c::CentroidCalculator{V})(samples::AbstractVector{V}, norm::Norm{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+Calculates the center from the `samples` using `norm`. Overwrite in your subtypes of CentroidCalculator
+"""
+function (c::CentroidCalculator{V})(samples::AbstractVector{V}, norm::Norm{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     error("Method initialize not implemented for $(typeof(c))")
 end
 
 struct EuclideanMeanCentroid{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: CentroidCalculator{V} end
-function (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+"""
+    (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V}, norm::Norm{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
+
+Calculates the center from the `samples` using the standard euclidean mean.
+"""
+function (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V}, norm::Norm{V})::V where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
     return mean(samples)
-end
-
-abstract type Norm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
-function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
-    error("Method initialize not implemented for $(typeof(c))")
-end
-
-struct EuclideanNorm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} <: Norm{V} end
-function (c::EuclideanNorm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
-    return la_norm(x)
 end
 
 
@@ -108,7 +160,7 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
     if k <= 0
         throw(ArgumentError("k has to be > 0"))
     end
-    centers = init(x, k)
+    centers = init(x, k, norm)
     iter = 0
     err = typemax(T)
 
@@ -120,7 +172,7 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
                 clusters[i] = [rand(x)]
             end
         end
-        new_centers = centroid.(clusters)
+        new_centers = [centroid(cluster, norm) for cluster in clusters]
         err = sum(norm.(centers .- new_centers))
         centers = new_centers
         iter += 1
@@ -129,7 +181,7 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
 end
 
 """
-    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}}
+    buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Norm{V})::Vector{Vector{V}} where {T<:NonInteger,N,V<:Union{T, AbstractArray{T,N}}}
 
 Assigns each sample in `xs` to the nearest cluster center in `init`.
 
@@ -153,6 +205,6 @@ function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Nor
     return clusters
 end
 
-export KMeans, ClusterInit, UniformRandomInit, CentroidCalculator, EuclideanMeanCentroid
+export KMeans, ClusterInit, UniformRandomInit, KMeansPPInit, CentroidCalculator, EuclideanMeanCentroid, EuclideanNorm
 
 end
