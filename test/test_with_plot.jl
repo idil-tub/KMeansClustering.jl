@@ -96,9 +96,9 @@ end
 function load_wine_data()
     # wine
     # there are 13 feature: Alcohol,Malic.acid,Ash,Acl,Mg,Phenols,Flavanoids,Nonflavanoid.phenols,Proanth,Color.int,Hue,OD,Proline
-    url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
+    # url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
     data_path = "wine.csv"
-    HTTP.download(url, data_path)
+    # HTTP.download(url, data_path)
 
     wine_df = CSV.read(data_path, DataFrame)
     y_wine, X_wine = unpack(wine_df, ==(:Wine); rng=123);
@@ -200,12 +200,30 @@ end
 # println(adjusted_rand_index(labels_true, labels_pred))
 
 
-# Function to plot clustering results
-function plot_clusters(data, assignments, title, filename)
-    df = DataFrame(hcat(hcat(data...)', assignments), :auto)
-    scatter(df[!, 1], df[!, 2], group=df[!, end], legend=false, title=title)
+# Function to plot clustering results and centroids
+function plot_clusters(centroids,title, filename)
+    p = plot(title=title, legend=:topright)
+    color_palette = palette(:tab10)
+
+    for (i, (centers, members)) in enumerate(centroids)
+
+        mem_x = [members[i][1] for i in 1:length(members)]
+        mem_y = [members[i][2] for i in 1:length(members)]
+    
+        # Plot cluster points
+        scatter!(p, mem_x, mem_y, label="Cluster $i", color=color_palette[i])
+    
+        # Plot cluster center
+        scatter!(p, [centers[1]], [centers[2]], color=color_palette[i], marker=:star, markersize=10, label="Center $i")
+    
+    end
+
     savefig(filename)
 end
+
+
+
+
 
 
 @testset "Iris Dataset" begin
@@ -215,6 +233,10 @@ end
         
         k = length(unique(iris_labels))  
         result = KMeans(iris_vectors, k)
+        # centroids = collect(keys(result))
+        # println("centroids",centroids)
+        # println("typeof(centroids)",typeof(centroids))
+
         println("KMeans Clustering Completed")
         
         assignments = extract_assignments(iris_vectors, result)
@@ -222,7 +244,7 @@ end
         
         @test length(assignments) == length(iris_labels)
         
-        plot_clusters(iris_vectors, assignments, "Clusters for iris Dataset", joinpath(output_dir, "clusters_iris.png"))
+        plot_clusters(result, "Clusters for iris Dataset", joinpath(output_dir, "clusters_iris.png"))
         println("Cluster plot saved as clusters_iris.png")
         
         print(iris_labels, assignments)
@@ -251,7 +273,7 @@ end
         
         @test length(assignments) == length(wine_labels)
         
-        plot_clusters(wine_vectors, assignments, "Clusters for wine Dataset", joinpath(output_dir, "clusters_wine.png"))
+        plot_clusters(result, "Clusters for wine Dataset with centroids ", joinpath(output_dir, "clusters_wine.png"))
         println("Cluster plot saved as clusters_wine.png")
         
         print(wine_labels, assignments)
@@ -274,7 +296,7 @@ end
         println("Assignments for small dataset: ", assignments_result_small)
         @test length(assignments_result_small) == size(data_small, 1)
         # Plot and save image
-        plot_clusters(data_small, assignments_result_small, "Clusters for Small Dataset", joinpath(output_dir, "clusters_small.png"))
+        plot_clusters(result_small, "Clusters for Small Dataset", joinpath(output_dir, "clusters_small.png"))
     catch e
         @test false 
         println("Error during testing small dataset: ", e)
@@ -289,9 +311,9 @@ end
         display(bench_large)
         @test length(assignments_result_large) == size(data_large, 1)
         # Plot and save image (subset)
-        subset = data_large[1:100]
-        assignments_subset = assignments_result_large[1:100]
-        plot_clusters(subset, assignments_subset, "Clusters for Large Dataset(Subset)", joinpath(output_dir, "clusters_large(subset).png"))
+        # subset = data_large[1:100]
+        # assignments_subset = assignments_result_large[1:100]
+        plot_clusters(result_large, "Clusters for Large Dataset", joinpath(output_dir, "clusters_large.png"))
     catch e
         @test false
         println("Error during testing large dataset: ", e)
@@ -302,7 +324,7 @@ end
         assignments_result_missing = extract_assignments(data_missing, result_missing)
         println("Assignments for dataset with missing values: ", assignments_result_missing)
         @test length(assignments_result_missing) == size(data_missing, 1)
-        plot_clusters(data_missing, assignments_result_missing, "Clusters for Dataset with Missing Values", joinpath(output_dir, "clusters_missing.png"))
+        plot_clusters(result_missing, "Clusters for Dataset with Missing Values", joinpath(output_dir, "clusters_missing.png"))
     catch e
         @test false
         println("Error during testing dataset with missing values: ", e)
@@ -313,7 +335,7 @@ end
         assignments_result_outlier = extract_assignments(data_outlier, result_outlier)
         println("Assignments for dataset with outliers: ", assignments_result_outlier)
         @test length(assignments_result_outlier) == size(data_outlier, 1)
-        plot_clusters(data_outlier, assignments_result_outlier, "Clusters for Dataset with Outliers", joinpath(output_dir, "clusters_outlier.png"))
+        plot_clusters(result_outlier, "Clusters for Dataset with Outliers", joinpath(output_dir, "clusters_outlier.png"))
     catch e
         @test false
         println("Error during testing dataset with outliers: ", e)
