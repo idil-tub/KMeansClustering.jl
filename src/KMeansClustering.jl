@@ -10,6 +10,7 @@ import Statistics.mean
 
 const NonInteger = Core.Real
 
+
 abstract type Norm{V<:Union{<:NonInteger, AbstractArray{<:NonInteger}}} end
 
 """
@@ -171,7 +172,7 @@ function KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRand
                 clusters[i] = [rand(x)]
             end
         end
-        new_centers = centroid.(clusters)
+        new_centers = [centroid(cluster, norm) for cluster in clusters]
         err = sum(norm.(centers .- new_centers))
         centers = new_centers
         iter += 1
@@ -204,6 +205,6 @@ function buildClusters(xs::AbstractVector{V}, init::AbstractVector{V}, norm::Nor
     return clusters
 end
 
-export KMeans, ClusterInit, UniformRandomInit, KMeansPPInit, CentroidCalculator, EuclideanMeanCentroid
+export KMeans, ClusterInit, UniformRandomInit, KMeansPPInit, CentroidCalculator, EuclideanMeanCentroid, EuclideanNorm
 
 end
