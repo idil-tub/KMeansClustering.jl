@@ -77,7 +77,7 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create CML report
-          cml comment create ./test/test_plot/comment.md
+          cml comment update ./test/test_plot/comment.md
   docs:
     name: Documentation
     runs-on: ubuntu-latest
