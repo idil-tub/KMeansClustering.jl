@@ -1,6 +1,5 @@
 using Test
 using Distributions
-using LinearAlgebra
 using Statistics
 using Random
 using KMeansClustering
