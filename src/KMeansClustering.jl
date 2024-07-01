@@ -52,7 +52,7 @@ function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64)::Vector
     ret = [collect(map(generateSample, min_bounds, max_bounds)) for _ in 1:k]
     
     if samples isa AbstractVector{<:NonInteger}
-        ret = map(el -> el[1], x)
+        ret = map(el -> el[1], ret)
     end
     
     return ret
