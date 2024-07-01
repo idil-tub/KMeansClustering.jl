@@ -317,3 +317,22 @@ end
         println("Error during testing dataset with outliers: ", e)
     end
 end
+
+# create the content for markdown
+function generate_markdown()
+    markdown = """
+    ### KMeans Clustering Results
+
+    ![Iris Dataset](clusters_iris.png)
+    ![Wine Dataset](clusters_wine.png)
+    ![Small Dataset](clusters_small.png)
+    ![Large Dataset](clusters_large.png)
+    ![Dataset with Missing Values](clusters_missing.png)
+    ![Dataset with Outliers](clusters_outlier.png)
+    """
+    open(joinpath(output_dir, "comment.md"), "w") do f
+        write(f, markdown)
+    end
+end
+
+generate_markdown()
