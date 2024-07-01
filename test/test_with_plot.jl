@@ -1,6 +1,5 @@
 using KMeansClustering
 using Test
-using Clustering
 using Random
 using BenchmarkTools
 using Statistics

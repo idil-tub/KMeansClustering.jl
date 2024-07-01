@@ -1,9 +1,6 @@
 using KMeansClustering
 using Documenter
 
-using Pkg
-Pkg.add(["MLJ", "DataFrames", "Plots"])
-
 # Precompile added packages
 using MLJ
 using DataFrames
