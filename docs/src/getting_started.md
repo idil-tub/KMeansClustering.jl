@@ -1,8 +1,8 @@
 ## Two Dimensions (Sepal Length and Width) Example of Iris Data
 
-This is a simple example with real world data on how to use KMeans Clustering and visualization of the clusters.
+This is a simple example with real world data on how to use KMeans Clustering and visualize the clusters.
 
-First, we load Iris data. Then, we perfrom KMeans Clustering and display clusters.
+First, we load Iris data. Then, we perform KMeans Clustering and display clusters.
 
 ```@example 1
 using KMeansClustering
