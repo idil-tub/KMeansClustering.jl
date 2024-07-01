@@ -7,8 +7,6 @@ using Statistics
 using Plots
 using DataFrames
 using CSV
-using HTTP
-using MLJ
 
 
 println(pwd())
@@ -19,14 +17,10 @@ isdir(output_dir) || mkpath(output_dir)
 
 # Prepare Dataset
 # small one
-# data_small = rand(2, 2)
-# Output: [[0.343, 0.879], [0.576, 0.123]]
 data_small = [rand(2) for _ in 1:2]
 
 # large one
 data_large = [rand(2) for _ in 1:500]
-#Vector{Vector{Float64}}
-# typeof(data_large)
 
 # A array which can accept Float64 and missing data
 missing_process = Array{Union{Float64, Missing}}(undef, 100, 2)
@@ -75,14 +69,10 @@ function load_iris_data()
     vector = x_iris[:,1:2]
     println("iris_vectors:",vector)
 
-    # print(iris_features)
-    # iris_vectors = convert(Vector{Vector{Float64}}, eachrow(Matrix(iris_features)))
     iris_vectors = convert_to_vector(vector)
 
-    # print(iris_vectors)
     iris_labels = y_iris
 
-    # print(iris_labels)
     iris_label_map = Dict(unique(iris_labels) .=> 1:length(unique(iris_labels)))
     iris_int_labels = [iris_label_map[label] for label in iris_labels]
     println("length of iris_vectors: ",length(iris_vectors))
@@ -98,21 +88,16 @@ function load_wine_data()
     # there are 13 feature: Alcohol,Malic.acid,Ash,Acl,Mg,Phenols,Flavanoids,Nonflavanoid.phenols,Proanth,Color.int,Hue,OD,Proline
     # url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
     data_path = "./test/wine.csv"
-    # HTTP.download(url, data_path)
 
     wine_df = CSV.read(data_path, DataFrame)
     y_wine, X_wine = unpack(wine_df, ==(:Wine); rng=123);
     vector = X_wine[:,1:2]
     println("wine_vectors:",vector)
 
-    # print(iris_features)
-    # iris_vectors = convert(Vector{Vector{Float64}}, eachrow(Matrix(iris_features)))
     wine_vectors = convert_to_vector(vector)
 
-    # print(iris_vectors)
     wine_labels = y_wine
 
-    # print(iris_labels)
     wine_label_map = Dict(unique(wine_labels) .=> 1:length(unique(wine_labels)))
     wine_int_labels = [wine_label_map[label] for label in wine_labels]
     println("length of wine_vectors: ",length(wine_vectors))
@@ -195,9 +180,6 @@ function comb(n::Int, k::Int=2)::BigInt
     return factorial(BigInt(n)) // (factorial(BigInt(k)) * factorial(BigInt(n - k)))
 end
 
-# labels_true = [1, 1, 0, 0, 1, 0, 1, 1, 0, 0]
-# labels_pred = [0, 0, 1, 1, 0, 1, 0, 0, 1, 1]
-# println(adjusted_rand_index(labels_true, labels_pred))
 
 
 # Function to plot clustering results and centroids
@@ -233,9 +215,6 @@ end
         
         k = length(unique(iris_labels))  
         result = KMeans(iris_vectors, k)
-        # centroids = collect(keys(result))
-        # println("centroids",centroids)
-        # println("typeof(centroids)",typeof(centroids))
 
         println("KMeans Clustering Completed")
         
@@ -310,9 +289,6 @@ end
         bench_large = @benchmark KMeans(data_large, 5)
         display(bench_large)
         @test length(assignments_result_large) == size(data_large, 1)
-        # Plot and save image (subset)
-        # subset = data_large[1:100]
-        # assignments_subset = assignments_result_large[1:100]
         plot_clusters(result_large, "Clusters for Large Dataset", joinpath(output_dir, "clusters_large.png"))
     catch e
         @test false
@@ -341,58 +317,3 @@ end
         println("Error during testing dataset with outliers: ", e)
     end
 end
-
-
-# # ARI test(to test the accuracy), but looks like meaningless here
-# #in order to ignore error message,just print the result of ARI
-# @testset "KMeansClustering.jl ARI" begin
-#     # Assumed that we have actual label
-#     true_labels_small = [1, 2]
-#     true_labels_large = repeat(1:10, inner=50)  # length match
-#     true_labels_missing = repeat(1:3, inner=34)[1:100]  
-#     true_labels_outlier = repeat(1:3, inner=34)[1:100]  
-
-#     try
-#         result_small = KMeans(data_small, 2)
-#         assignments_result = extract_assignments(data_small, result_small)
-#         @test length(assignments_result) == length(true_labels_small)
-#         ari_small = adjusted_rand_index(true_labels_small, assignments_result)
-#         println("ARI for small dataset: ", ari_small)
-#     catch e
-#         println("Error during ARI calculation for small dataset: ", e)
-#         @test false
-#     end
-
-#     try
-#         result_large = KMeans(data_large, 5)
-#         assignments_result = extract_assignments(data_large, result_large)
-#         @test length(assignments_result) == length(true_labels_large) 
-#         ari_large = adjusted_rand_index(true_labels_large, assignments_result)
-#         println("ARI for large dataset: ", ari_large)
-#     catch e
-#         println("Error during ARI calculation for large dataset: ", e)
-#         @test false
-#     end
-
-#     try
-#         result_missing = KMeans(data_missing, 3)
-#         assignments_result = extract_assignments(data_missing, result_missing)
-#         @test length(assignments_result) == length(true_labels_missing)  
-#         ari_missing = adjusted_rand_index(true_labels_missing, assignments_result)
-#         println("ARI for dataset with missing values: ", ari_missing)
-#     catch e
-#         println("Error during ARI calculation for dataset with missing values: ", e)
-#         @test false
-#     end
-
-#     try
-#         result_outlier = KMeans(data_outlier, 3)
-#         assignments_result = extract_assignments(data_outlier, result_outlier)
-#         @test length(assignments_result) == length(true_labels_outlier) 
-#         ari_outlier = adjusted_rand_index(true_labels_outlier, assignments_result)
-#         println("ARI for dataset with outliers: ", ari_outlier)
-#     catch e
-#         println("Error during ARI calculation for dataset with outliers: ", e)
-#         @test false
-#     end
-# end
