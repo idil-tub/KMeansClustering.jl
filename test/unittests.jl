@@ -183,3 +183,82 @@ end
         end
     end
 end
+
+# High-dimensional data test
+@testset "KMeans with high-dimensional data" begin
+    samples = generate_random_points(100, 50)
+    k = 3
+    inits = [UniformRandomInit{Vector{Float64}}(), KMeansPPInit{Vector{Float64}}()]
+
+    for init in inits
+        result = KMeans(samples, k, init=init)
+        
+        @test length(result) == k
+
+        for (center, cluster) in result
+            @test typeof(center) == Vector{Float64}
+            @test length(center) == 50
+            @test eltype(cluster) == Vector{Float64}
+        end
+    end
+end
+
+
+# Performance test
+@testset "Performance" begin
+    samples = generate_random_points(10^4, 2)
+    k = 10
+    init = KMeansPPInit{Vector{Float64}}()
+
+    @time result = KMeans(samples, k, init=init)
+end
+
+
+# Consistency test
+@testset "Consistency" begin
+    samples = generate_random_points(100, 2)
+    k = 3
+    seed = 42
+
+    Random.seed!(seed)
+    init1 = UniformRandomInit{Vector{Float64}}()
+    result1 = KMeans(samples, k, init=init1)
+
+    Random.seed!(seed)
+    init2 = UniformRandomInit{Vector{Float64}}()
+    result2 = KMeans(samples, k, init=init2)
+
+    @test result1 == result2
+end
+
+
+
+
+# Edge cases
+@testset "Edge cases" begin
+    @testset "Very small number of samples" begin
+        samples = [[1.0, 2.0], [3.0, 4.0]]
+        k = 3
+        init = UniformRandomInit{Vector{Float64}}()
+        result = KMeans(samples, k, init=init)
+
+        @test length(result) == k
+    end
+
+    @testset "More clusters than data points" begin
+        samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0]]
+        k = 4
+        result = KMeans(samples, k)
+
+        @test length(result) == length(samples)
+    end
+
+    @testset "Identical data points" begin
+        samples = [[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
+        k = 2
+        init = UniformRandomInit{Vector{Float64}}()
+        result = KMeans(samples, k, init=init)
+
+        @test length(result) == k
+    end
+end
