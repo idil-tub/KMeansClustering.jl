@@ -6,7 +6,10 @@
 
 [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://idil-tub.github.io/KMeansClustering.jl/dev/)
 
-The KMeansClustering package provides an implementation of the K-means clustering algorithm, allowing for the partitioning of a dataset into k clusters. It includes customizable initialization methods for cluster centers and supports different K-means algorithms.
+
+KMeansClustering.jl is a Julia package created as part of a coursework project within the "Julia for Machine Learning" module at Technical University of Berlin.
+
+The package provides an implementation of the K-means clustering algorithm, allowing for the partitioning of a dataset into k clusters. It includes customizable initialization methods for cluster centers and supports different K-means algorithms.
 
 ## Installation
 
