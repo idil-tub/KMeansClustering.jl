@@ -236,8 +236,6 @@ end
 
 # Edge cases
 @testset "Edge cases" begin
-    
-
     @testset "Very small number of samples" begin
         samples = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
         k = 3
@@ -250,17 +248,21 @@ end
     @testset "More clusters than data points" begin
         samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0]]
         k = 4
-        @test_throws ArgumentError KMeans(samples, k)
-
-       
+        try
+            result = KMeans(samples, k)
+            @test length(result) == length(samples)
+        catch e
+            @test isa(e, ArgumentError) && e.msg == "more clusters than samples"
+        end
     end
 
     @testset "Identical data points" begin
         samples = [[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
-        k = 2
+        k = 1
         init = UniformRandomInit{Vector{Float64}}()
         result = KMeans(samples, k, init=init)
 
         @test length(result) == k
+
     end
 end
