@@ -265,4 +265,24 @@ end
         @test length(result) == k
 
     end
+
+    @testset "Number of clusters less than or equal to 0" begin
+        samples = generate_random_points(10, 2)
+        
+        k = 0
+        try
+            result = KMeans(samples, k)
+            @test false  
+        catch e
+            @test isa(e, ArgumentError) && e.msg == "k has to be > 0"
+        end
+
+        k = -1
+        try
+            result = KMeans(samples, k)
+            @test false  
+        catch e
+            @test isa(e, ArgumentError) && e.msg == "k has to be > 0"
+        end
+    end
 end
