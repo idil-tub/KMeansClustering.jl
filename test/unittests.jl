@@ -14,8 +14,8 @@ end
     samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
         [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
     init = UniformRandomInit{Vector{Float64}}()
-    norm = EuclideanNorm{Vector{Float64}}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Vector{Float64}}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> length(x) == 2, centroids)
@@ -26,8 +26,8 @@ end
     samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
         [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
     init = KMeansPPInit{Vector{Float64}}()
-    norm = EuclideanNorm{Vector{Float64}}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Vector{Float64}}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> length(x) == 2, centroids)
@@ -39,8 +39,8 @@ end
 @testset "UniformRandomInit with random data" begin
     samples = generate_random_points(100, 2)
     init = UniformRandomInit{Vector{Float64}}()
-    norm = EuclideanNorm{Vector{Float64}}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Vector{Float64}}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> length(x) == 2, centroids)
@@ -49,8 +49,8 @@ end
 @testset "UniformRandomInit with flat Vector{Float64}" begin
     samples = rand(Float64, 100)
     init = UniformRandomInit{Float64}()
-    norm = EuclideanNorm{Float64}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Float64}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> x isa Float64, centroids)
@@ -60,8 +60,8 @@ end
 @testset "KMeansPPInit with random data" begin
     samples = generate_random_points(100, 2)
     init = KMeansPPInit{Vector{Float64}}()
-    norm = EuclideanNorm{Vector{Float64}}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Vector{Float64}}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> length(x) == 2, centroids)
@@ -70,8 +70,8 @@ end
 @testset "UniformRandomInit with flat Vector{Float64}" begin
     samples = rand(Float64, 100)
     init = UniformRandomInit{Float64}()
-    norm = EuclideanNorm{Float64}()
-    centroids = init(samples, 3, norm)
+    normSqrSqr = EuclideanNormSqr{Float64}()
+    centroids = init(samples, 3, normSqrSqr)
 
     @test length(centroids) == 3
     @test all(x -> x isa Float64, centroids)
@@ -82,9 +82,9 @@ end
     samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
         [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
     initial_centroids = [[2.0, 3.0], [5.0, 6.0], [8.0, 9.0]]
-    norm = EuclideanNorm{Vector{Float64}}()
+    normSqr = EuclideanNormSqr{Vector{Float64}}()
 
-    clusters = KMeansClustering.buildClusters(samples, initial_centroids, norm)
+    clusters = KMeansClustering.KMeansAlgorithms.buildClusters(samples, initial_centroids, normSqr)
 
     @test length(clusters) == 3
     @test all(x -> eltype(x) == Vector{Float64}, clusters)
@@ -92,7 +92,7 @@ end
     # Verify that each sample is assigned to the nearest centroid
     for i in 1:length(samples)
         sample = samples[i]
-        distances = [norm(sample - centroid) for centroid in initial_centroids]
+        distances = [normSqr(sample - centroid) for centroid in initial_centroids]
         min_index = argmin(distances)
         @test sample in clusters[min_index]
     end
@@ -102,9 +102,9 @@ end
 @testset "buildClusters with random data" begin
     samples = generate_random_points(100, 2)
     initial_centroids = generate_random_points(3, 2)
-    norm = EuclideanNorm{Vector{Float64}}()
+    normSqr = EuclideanNormSqr{Vector{Float64}}()
 
-    clusters = KMeansClustering.buildClusters(samples, initial_centroids, norm)
+    clusters = KMeansClustering.KMeansAlgorithms.buildClusters(samples, initial_centroids, normSqr)
 
     @test length(clusters) == 3
     @test all(x -> eltype(x) == Vector{Float64}, clusters)
@@ -112,7 +112,7 @@ end
     # Verify that each sample is assigned to the nearest centroid
     for i in 1:length(samples)
         sample = samples[i]
-        distances = [norm(sample - centroid) for centroid in initial_centroids]
+        distances = [normSqr(sample - centroid) for centroid in initial_centroids]
         min_index = argmin(distances)
         @test sample in clusters[min_index]
     end
@@ -121,9 +121,9 @@ end
 # Test the calculateCenter function with hardcoded data
 @testset "calculateCenter with hardcoded data" begin
     samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0]]
-    norm = EuclideanNorm{Vector{Float64}}()
+    normSqr = EuclideanNormSqr{Vector{Float64}}()
     centroidCalculator = EuclideanMeanCentroid{Vector{Float64}}()
-    center = centroidCalculator(samples, norm)
+    center = centroidCalculator(samples, normSqr)
 
     @test length(center) == 2
     @test typeof(center) == Vector{Float64}
@@ -136,9 +136,9 @@ end
 # Test the calculateCenter function with randomly generated data
 @testset "calculateCenter with random data" begin
     samples = generate_random_points(10, 2)
-    norm = EuclideanNorm{Vector{Float64}}()
+    normSqr = EuclideanNormSqr{Vector{Float64}}()
     centroidCalculator = EuclideanMeanCentroid{Vector{Float64}}()
-    center = centroidCalculator(samples, norm)
+    center = centroidCalculator(samples, normSqr)
 
     @test length(center) == 2
     @test typeof(center) == Vector{Float64}
