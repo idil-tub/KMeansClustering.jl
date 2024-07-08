@@ -1,2 +1,9 @@
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
 /Manifest.toml
+/docs/Manifest.toml
+/test/Manifest.toml
+/docs/build/
 .vscode/**
+/test/test_plot/*
