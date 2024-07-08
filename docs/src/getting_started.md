@@ -73,7 +73,6 @@ The process consists of four main steps:
 ```@example 2
 using KMeansClustering
 using TSne
-using Random
 using HTTP
 using CSV
 using DataFrames
