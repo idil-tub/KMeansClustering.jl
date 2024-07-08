@@ -19,7 +19,7 @@ abstract type Norm{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} end
 Calculates the norm of `x`. Overwrite in your own subtypes of `Norm`.
 """
 function (c::Norm{V})(x::V)::T where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
-    error("Method initialize not implemented for $(typeof(c))")
+    error("Method not implemented for $(typeof(c))")
 end
 
 struct EuclideanNorm{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} <: Norm{V} end
@@ -41,7 +41,7 @@ Initializes `k` cluster centers from `samples` using the cluster initialization 
 
 """
 function (c::ClusterInit{V})(samples::AbstractVector{V}, k::Int64, norm::Norm{V})::Vector{V} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
-    error("Method initialize not implemented for $(typeof(c))")
+    error("Method not implemented for $(typeof(c))")
 end
 
 """
@@ -117,7 +117,7 @@ abstract type CentroidCalculator{V<:Union{<:NonInteger,AbstractArray{<:NonIntege
 Calculates the center from the `samples` using `norm`. Overwrite in your subtypes of CentroidCalculator
 """
 function (c::CentroidCalculator{V})(samples::AbstractVector{V}, norm::Norm{V})::V where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
-    error("Method initialize not implemented for $(typeof(c))")
+    error("Method not implemented for $(typeof(c))")
 end
 
 struct EuclideanMeanCentroid{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} <: CentroidCalculator{V} end
@@ -132,34 +132,13 @@ function (c::EuclideanMeanCentroid{V})(samples::AbstractVector{V}, norm::Norm{V}
 end
 
 
-@enum KMeansAlgorithm begin
-    Lloyd
+abstract type KMeansAlgorithm{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} end
+function (a::KMeansAlgorithm{V})(x::AbstractVector{V}, k::Int64, init::ClusterInit{V}, max_iter::Int64, tol::Float64, centroid::CentroidCalculator{V}, norm::Norm{V})::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
+    error("Method not implemented for $(typeof(a))")
 end
 
-"""
-    KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter=300, tol=0.0001, algorithm::KMeansAlgorithm=Lloyd, centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), norm::Norm{V}=EuclideanNorm{V}())::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
-
-Perform K-means clustering on the data `x` with `k` clusters.
-
-Arguments:
-- `x`: Input data as an abstract vector of type `V`.
-- `k`: Number of clusters.
-- `init`: Cluster initialization method. Default is `UniformRandomInit`.
-- `max_iter`: Maximum number of iterations. Default is 300.
-- `tol`: Tolerance for convergence. Default is 0.0001.
-- `algorithm`: K-means algorithm to use. Default is `Lloyd`.
-- `centroid`: Used to calculate center of each cluster. Default `EuclideanMeanCentroid`
-- `norm`: Used to assign clusters to samples. Default `EuclideanNorm`
-
-Returns a dictionary mapping each cluster center to its assigned samples.
-"""
-function KMeans(
-    x::AbstractVector{V}, k::Int64; 
-    init::ClusterInit{V}=UniformRandomInit{V}(), 
-    max_iter=300, tol=0.0001, 
-    algorithm::KMeansAlgorithm=Lloyd, 
-    centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), 
-    norm::Norm{V}=EuclideanNorm{V}())::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
+struct Lloyd{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} <: KMeansAlgorithm{V} end
+function (a::Lloyd{V})(x::AbstractVector{V}, k::Int64, init::ClusterInit{V}, max_iter::Int64, tol::Float64, centroid::CentroidCalculator{V}, norm::Norm{V})::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
     if length(x) == 0
         return []
     end
@@ -187,6 +166,34 @@ function KMeans(
         iter += 1
     end
     return [x => y for (x, y) in zip(centers, clusters)]
+end
+
+
+
+"""
+    KMeans(x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), max_iter::Int64=300, tol::Float64=0.0001, algorithm::KMeansAlgorithm=Lloyd, centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), norm::Norm{V}=EuclideanNorm{V}())::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
+
+Perform K-means clustering on the data `x` with `k` clusters.
+
+Arguments:
+- `x`: Input data as an abstract vector of type `V`.
+- `k`: Number of clusters.
+- `init`: Cluster initialization method. Default is `UniformRandomInit`.
+- `max_iter`: Maximum number of iterations. Default is 300.
+- `tol`: Tolerance for convergence. Default is 0.0001.
+- `algorithm`: K-means algorithm to use. Default is `Lloyd`.
+- `centroid`: Used to calculate center of each cluster. Default `EuclideanMeanCentroid`
+- `norm`: Used to assign clusters to samples. Default `EuclideanNorm`
+
+Returns a dictionary mapping each cluster center to its assigned samples.
+"""
+function KMeans(
+    x::AbstractVector{V}, k::Int64; init::ClusterInit{V}=UniformRandomInit{V}(), 
+    max_iter::Int64=300, tol::Float64=0.0001, 
+    algorithm::KMeansAlgorithm=Lloyd{V}(), 
+    centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), 
+    norm::Norm{V}=EuclideanNorm{V}())::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
+    return algorithm(x, k, init, max_iter, tol, centroid, norm)
 end
 
 """
