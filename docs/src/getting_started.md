@@ -5,7 +5,7 @@ This is a simple example with real world data on how to use [KMeans](https://en.
 The process consists of four main steps:
 1. Data Loading - Iris Data
 2. Data Preprocessing - Extract required data and convert to required data format
-3. KMeans Clustering Execution
+3. KMeans Clustering Execution - KMean and KMean++
 4. Results Visualization - 2D Plot
 
 ```@example 1
@@ -24,14 +24,15 @@ y_iris, X_iris = unpack(iris, ==(:target); rng=123);
 
 # Extract sepal_length and sepal_width features from Iris dataset
 # Convert selected features to a vector for KMeans clustering
-X_iris = Matrix(X_iris)'
-X_iris_vec = [Vector{Float64}(col) for col in eachcol(X_iris[1:2, :])]
+X_iris = Matrix(X_iris[:, 1:2])'
+X_iris_vec = [Vector{Float64}(col) for col in eachcol(X_iris)]
 
 # Execute KMeans clustering
 k = 3
 max_iter = 100
 tol = 0.0001
-clusters = KMeans(X_iris_vec, k; max_iter=max_iter, tol=tol)
+Initializer = KMeansPPInit{Vector{Float64}}()
+clusters = KMeans(X_iris_vec, k; init = Initializer, max_iter = max_iter, tol = tol)
 clusters # hide
 ```
 
@@ -66,7 +67,7 @@ This example illustrates the application of KMeans Clustering to high-dimensiona
 The process consists of four main steps:
 1. Data Loading - Wine Data
 2. Data Preprocessing - Normalize and convert to required data format
-3. KMeans Clustering Execution
+3. KMeans Clustering Execution - KMean and KMean++
 4. Results Visualization - t-SNE to 2D Plot
 
 ```@example 2
@@ -102,7 +103,8 @@ X_normalized_vec = [Vector{Float64}(col) for col in eachcol(X_normalized)]
 k = 3
 max_iter = 100
 tol = 0.0001
-clusters = KMeans(X_normalized_vec, k; max_iter=max_iter, tol=tol)
+Initializer = KMeansPPInit{Vector{Float64}}()
+clusters = KMeans(X_normalized_vec, k; init = Initializer, max_iter = max_iter, tol = tol)
 clusters # hide
 ```
 
