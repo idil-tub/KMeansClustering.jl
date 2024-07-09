@@ -59,6 +59,7 @@ function (c::UniformRandomInit{V})(samples::AbstractVector{V}, k::Int64, norm::N
     end
 
     dims = size(x[1])
+
     min_bounds = fill(typemax(T), dims...)
     max_bounds = fill(typemin(T), dims...)
 
