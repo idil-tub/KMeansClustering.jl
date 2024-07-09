@@ -17,6 +17,7 @@ Distributions = "0.25"
 LinearAlgebra = "1.10"
 Random = "1.10"
 Statistics = "1.10"
+CSV = "0.10"
 
 
 
