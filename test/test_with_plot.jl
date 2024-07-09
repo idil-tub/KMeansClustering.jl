@@ -7,7 +7,7 @@ using Plots
 using DataFrames
 using CSV
 using MLJ
-
+using Clustering
 
 println(pwd())
 # make sure that test_plot is existed
@@ -60,52 +60,35 @@ function convert_to_vector(data::DataFrame)
     return vector_data
 end
 
+function real_data_load(x,y)
+    vector = x[:, 1:2]
+    vectors = convert_to_vector(vector)
+    labels = y
+    label_map = Dict(unique(labels) .=> 1:length(unique(labels)))
+    int_labels = [label_map[label] for label in labels]
+    return vectors, int_labels
+end
+
 #Load Iris
 function load_iris_data()
     iris_data = load_iris()
     iris_df = DataFrame(iris_data)
     print(iris_df)
     y_iris, x_iris = unpack(iris_df, ==(:target); rng=123)
-    vector = x_iris[:, 1:2]
-    println("iris_vectors:", vector)
-
-    iris_vectors = convert_to_vector(vector)
-
-    iris_labels = y_iris
-
-    iris_label_map = Dict(unique(iris_labels) .=> 1:length(unique(iris_labels)))
-    iris_int_labels = [iris_label_map[label] for label in iris_labels]
-    println("length of iris_vectors: ", length(iris_vectors))
-    println("length of iris_int_labels: ", length(iris_int_labels))
-
-    println("iris_vectors, iris_int_labels", iris_vectors, iris_int_labels)
+    iris_vectors, iris_int_labels = real_data_load(x_iris,y_iris)
     return iris_vectors, iris_int_labels
 end
-
 
 function load_wine_data()
     # wine
     # there are 13 feature: Alcohol,Malic.acid,Ash,Acl,Mg,Phenols,Flavanoids,Nonflavanoid.phenols,Proanth,Color.int,Hue,OD,Proline
     # url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
     data_path = "./wine.csv"
-
     wine_df = CSV.read(data_path, DataFrame)
     y_wine, X_wine = unpack(wine_df, ==(:Wine); rng=123)
-    vector = X_wine[:, 1:2]
-    println("wine_vectors:", vector)
-
-    wine_vectors = convert_to_vector(vector)
-
-    wine_labels = y_wine
-
-    wine_label_map = Dict(unique(wine_labels) .=> 1:length(unique(wine_labels)))
-    wine_int_labels = [wine_label_map[label] for label in wine_labels]
-    println("length of wine_vectors: ", length(wine_vectors))
-    println("length of wine_int_labels: ", length(wine_int_labels))
-
+    wine_vectors, wine_int_labels = real_data_load(X_wine,y_wine)
     return wine_vectors, wine_int_labels
 end
-
 
 function extract_assignments(data, clusters)
     println("length(data):", length(data))
@@ -132,55 +115,19 @@ function extract_assignments(data, clusters)
     return assignments
 end
 
+function accuracy_test(labels,assignments,dataset)
+    indices = randindex(labels, assignments)
+    ari = indices[1]
+    rand_index = indices[2]
+    Mirkin_index = indices[3]
+    Hubert_index = indices[4]
 
-
-function adjusted_rand_index(labels_true, labels_pred)
-    n = length(labels_true)
-    unique_labels_true = unique(labels_true)
-    unique_labels_pred = unique(labels_pred)
-
-    contingency_matrix = zeros(Int, length(unique_labels_true), length(unique_labels_pred))
-
-    label_true_map = Dict(label => i for (i, label) in enumerate(unique_labels_true))
-    label_pred_map = Dict(label => i for (i, label) in enumerate(unique_labels_pred))
-
-    for i in 1:n
-        contingency_matrix[label_true_map[labels_true[i]], label_pred_map[labels_pred[i]]] += 1
-    end
-
-    println("Contingency Matrix: ")
-    println(contingency_matrix)
-
-    comb_matrix = comb.(contingency_matrix)
-    sum_comb_c = sum(comb_matrix)
-    sum_comb_k = sum(comb.(sum(contingency_matrix, dims=2)))
-    sum_comb_j = sum(comb.(sum(contingency_matrix, dims=1)))
-
-    n_comb = comb(n, 2)
-    index = sum_comb_c - (sum_comb_k * sum_comb_j / n_comb)
-    expected_index = (sum_comb_k * sum_comb_j) / n_comb
-    max_index = 0.5 * (sum_comb_k + sum_comb_j)
-
-    println("sum_comb_c: $sum_comb_c")
-    println("sum_comb_k: $sum_comb_k")
-    println("sum_comb_j: $sum_comb_j")
-    println("index: $index")
-    println("expected_index: $expected_index")
-    println("max_index: $max_index")
-
-    return (index - expected_index) / (max_index - expected_index)
+    println("Hubert & Arabie Adjusted Rand index for:",dataset, ari)
+    println("Rand index (agreement probability) for:", dataset,rand_index)
+    println("Mirkin's index (disagreement probability) for:",dataset, Mirkin_index)
+    println("Hubert's index for:",dataset, Hubert_index)
+    return ari,rand_index,Mirkin_index,Hubert_index
 end
-
-
-
-function comb(n::Int, k::Int=2)::BigInt
-    if n < k
-        return BigInt(0)
-    end
-    return factorial(BigInt(n)) // (factorial(BigInt(k)) * factorial(BigInt(n - k)))
-end
-
-
 
 # Function to plot clustering results and centroids
 function plot_clusters(centroids, title, filename)
@@ -204,10 +151,6 @@ function plot_clusters(centroids, title, filename)
 end
 
 
-
-
-
-
 @testset "Iris Dataset" begin
     iris_vectors, iris_labels = load_iris_data()
     println("Loaded Iris Data")
@@ -226,11 +169,13 @@ end
     println("Cluster plot saved as clusters_iris.png")
 
     print(iris_labels, assignments)
-    ari = adjusted_rand_index(iris_labels, assignments)
 
-    println("ARI for iris dataset: ", ari)
+    ari,rand_index,Mirkin_index,Hubert_index = accuracy_test(iris_labels,assignments,"Iris Dataset")
 
-    @test -1 <= ari <= 1
+    @test ari > 0.3 
+    @test rand_index > 0.6
+    @test Mirkin_index < 0.4
+    @test Hubert_index > 0.3
 end
 
 @testset "wine Dataset" begin
@@ -251,11 +196,14 @@ end
         println("Cluster plot saved as clusters_wine.png")
 
         print(wine_labels, assignments)
-        ari = adjusted_rand_index(wine_labels, assignments)
+        
+        ari,rand_index,Mirkin_index,Hubert_index = accuracy_test(wine_labels,assignments,"wine Dataset")
 
-        println("ARI for wine dataset: ", ari)
+        @test ari > 0.3
+        @test rand_index > 0.6
+        @test Mirkin_index < 0.4
+        @test Hubert_index > 0.3
 
-        @test -1 <= ari <= 1
     catch e
         println("Error during testing wine dataset: ", e)
         @test false
@@ -275,7 +223,6 @@ end
         @test false
         println("Error during testing small dataset: ", e)
     end
-
 
     try
         result_large = KMeans(data_large, 5)
