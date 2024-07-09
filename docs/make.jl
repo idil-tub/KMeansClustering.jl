@@ -5,7 +5,10 @@ using Documenter
 using MLJ
 using DataFrames
 using Plots
-
+using TSne
+using Random
+using HTTP
+using CSV
 
 DocMeta.setdocmeta!(KMeansClustering, :DocTestSetup, :(using KMeansClustering); recursive=true)
 
@@ -29,3 +32,4 @@ deploydocs(;
     repo="github.com/idil-tub/KMeansClustering.jl",
     devbranch="main",
 )
+

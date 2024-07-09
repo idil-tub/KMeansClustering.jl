@@ -48,7 +48,7 @@ data = [rand(3) for _ in 1:100]  # 100 3D points
 result = KMeans(data, 5)
 
 # Custom configuration
-result = KMeans(data, 5, 
+result = KMeans(data, 5,
     init=KMeansPPInit{Vector{Float64}}(),
     max_iter=500,
     tol=1e-6,
@@ -62,8 +62,8 @@ See also [`ClusterInit`](@ref), [`KMeansAlgorithm`](@ref), [`CentroidCalculator`
 function KMeans(
     x::AbstractVector{V}, k::Int64; 
     init::ClusterInit{V}=UniformRandomInit{V}(), 
-    max_iter::Int64=300, tol::Float64=0.0001, 
-    algorithm::KMeansAlgorithm=Lloyd{V}(), 
+    max_iter::Int64=300, tol::Float64=0.0001,
+    algorithm::KMeansAlgorithm=Lloyd{V}(),
     centroid::CentroidCalculator{V}=EuclideanMeanCentroid{V}(), 
     normSqr::NormSqr{V}=EuclideanNormSqr{V}())::AbstractVector{Pair{V, AbstractVector{V}}} where {T<:NonInteger,N,V<:Union{T,AbstractArray{T,N}}}
     return algorithm(x, k, init, max_iter, tol, centroid, normSqr)
