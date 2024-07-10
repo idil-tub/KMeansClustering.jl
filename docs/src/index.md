@@ -11,6 +11,6 @@ Documentation for [KMeansClustering](https://github.com/idil-tub/KMeansClusterin
 ```
 
 ```@autodocs
-Modules = [KMeansClustering]
+Modules = [KMeansClustering, KMeansClustering.Init, KMeansClustering.KMeansAlgorithms, KMeansClustering.Norm, KMeansClustering.Centroid, KMeansClustering.Types]
 ```
 
