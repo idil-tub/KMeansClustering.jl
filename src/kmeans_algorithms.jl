@@ -401,8 +401,6 @@ function (a::BkMeans{V})(samples::AbstractVector{V}, k::Int64, init::ClusterInit
         else
             m -= 1
         end
-        
-        m = 0
     end
         
     clusters = buildClusters(samples, c_best, normSqr)
