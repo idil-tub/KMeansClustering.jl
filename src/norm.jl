@@ -1,3 +1,20 @@
+"""
+    KMeansClustering.Norm
+
+This module defines abstract and concrete types for calculating norms, particularly
+squared norms, which are essential in many clustering and distance-based algorithms.
+
+# Types
+- `NormSqr{V}`: Abstract type for squared norm calculations
+- `EuclideanNormSqr{V}`: Concrete type for squared Euclidean norm
+
+# Functions
+- Call operators for `NormSqr` and `EuclideanNormSqr` to perform norm calculations
+
+# Exports
+- `NormSqr`
+- `EuclideanNormSqr`
+"""
 module Norm
 import LinearAlgebra.norm_sqr as la_norm_sqr
 
@@ -11,7 +28,7 @@ An abstract type representing squared norms.
 The type parameter `V` can be either a non-integer numeric type or an array of non-integer numeric types.
 This allows for representation of squared norms of scalars, vectors, or matrices with non-integer elements.
 
-# Examples
+# Example
 ```julia
 # Concrete subtypes might be implemented as:
 # struct MyNormSqr{V<:AbstractVector{<:NonInteger}} <: NormSqr{V}
@@ -59,7 +76,7 @@ A concrete implementation of `NormSqr` representing the squared Euclidean norm.
 # Type Parameters
 - `V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}`: The type of input for which this norm is defined.
 
-# Examples
+# Example
 ```julia
 # Create an instance
 euclidean_norm_sqr = EuclideanNormSqr{Vector{Float64}}()
@@ -84,7 +101,7 @@ to be used as functions to calculate squared Euclidean norms.
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input, either a scalar or an array.
 
-# Examples
+# Example
 ```julia
 euclidean_norm_sqr = EuclideanNormSqr{Vector{Float64}}()
 v = [3.0, 4.0]

@@ -24,8 +24,10 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Getting Started" => "getting_started.md",
-        "Installation" => "installation.md"
+        "Installation" => "installation.md",
+        "Public API" => "reference.md"
     ],
+    checkdocs=:exports
 )
 
 deploydocs(;

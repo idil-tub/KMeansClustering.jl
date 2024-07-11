@@ -10,7 +10,3 @@ Documentation for [KMeansClustering](https://github.com/idil-tub/KMeansClusterin
 ```@index
 ```
 
-```@autodocs
-Modules = [KMeansClustering, KMeansClustering.Init, KMeansClustering.KMeansAlgorithms, KMeansClustering.Norm, KMeansClustering.Centroid, KMeansClustering.Types]
-```
-

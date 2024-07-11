@@ -1,3 +1,30 @@
+"""
+    KMeansClustering
+
+This module is the main module of this library and provides a flexible and extensible implementation of K-means clustering,
+allowing for customization of various aspects of the clustering process, including
+initialization methods, centroid calculation, norm, and algorithm variants.
+
+# Submodules
+- `Init`: Provides cluster initialization methods
+- `Norm`: Provides an extensive norm
+- `Centroid`: Provides an extensible centroid calculator
+- `KMeansAlgorithms`: Implements the Lloyd and breating k-Means algorithms and providing an interface to write your own
+
+# Exports
+- Functions: `KMeans` The main entry point to this library
+
+# Example Usage
+```julia
+using KMeansClustering
+
+# Generate sample data
+data = [rand(3) for _ in 1:100]  # 100 3D points
+
+# Perform K-means clustering with default parameters
+result = KMeans(data, 5)
+```
+"""
 module KMeansClustering
 
 include("types.jl")
@@ -41,7 +68,7 @@ allowing customization of initialization, algorithm, centroid calculation, and d
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and cluster centers.
 
-# Examples
+# Example
 ```julia
 # Basic usage with default parameters
 data = [rand(3) for _ in 1:100]  # 100 3D points

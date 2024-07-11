@@ -1,3 +1,33 @@
+"""
+    KMeansClustering.Init
+
+A module providing cluster initialization strategies for clustering algorithms.
+
+This module defines abstract and concrete types for initializing cluster centers,
+which are crucial components of clustering algorithms such as K-means.
+
+# Types
+- `ClusterInit{V}`: Abstract type for cluster initialization strategies
+- `UniformRandomInit{V}`: Uniform random initialization
+- `KMeansPPInit{V}`: K-means++ initialization
+
+# Functions
+- Call operators for `UniformRandomInit` and `KMeansPPInit` to perform initialization
+
+# Exports
+- `ClusterInit`
+- `UniformRandomInit`
+- `KMeansPPInit`
+
+# Example Usage
+```julia
+using KMeansClustering
+
+# Create initialization objects
+uniform_init = UniformRandomInit{Vector{Float64}}()
+kmeans_pp_init = KMeansPPInit{Vector{Float64}}()
+```
+"""
 module Init
 import Distributions.Uniform
 import Distributions.Categorical
@@ -19,14 +49,15 @@ Subtypes of `ClusterInit` are expected to implement specific initialization stra
 for clustering algorithms, such as k-means++ initialization, random initialization, 
 or other custom methods.
 
-# Examples
+# Example
 ```julia
 # A concrete subtype might be implemented as:
 struct MyRandomInit{V<:AbstractVector{<:NonInteger}} <: ClusterInit{V} end
 ```
 See also [`UniformRandomInit`](@ref), [`KMeansPPInit`](@ref)
 """
-abstract type ClusterInit{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} end
+abstract type ClusterInit{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} 
+end
 
 
 """
@@ -80,7 +111,7 @@ are chosen uniformly at random from the bounding hyperrectangle of the input sam
 - `V<:Union{AbstractArray{<:NonInteger},<:NonInteger}`: The type of input samples and cluster centers.
   Can be either a non-integer numeric type or an array of non-integer numeric types.
 
-# Examples
+# Example
 ```julia
 # Create an instance for vector data
 uniform_init = UniformRandomInit{Vector{Float64}}()
@@ -110,7 +141,7 @@ to be used as functions to generate initial cluster centers.
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and cluster centers.
 
-# Examples
+# Example
 ```julia
 uniform_init = UniformRandomInit{Vector{Float64}}()
 samples = [rand(3) for _ in 1:100]  # 100 3D points
@@ -160,7 +191,7 @@ with a probability proportional to their squared distance from the closest cente
 - `V<:Union{AbstractArray{<:NonInteger},<:NonInteger}`: The type of input samples and cluster centers.
   Can be either a non-integer numeric type or an array of non-integer numeric types.
 
-# Examples
+# Example
 ```julia
 # Create an instance for vector data
 kmeans_pp_init = KMeansPPInit{Vector{Float64}}()
@@ -191,7 +222,7 @@ algorithm.
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and cluster centers.
 
-# Examples
+# Example
 ```julia
 kmeans_pp = KMeansPPInit{Vector{Float64}}()
 samples = [rand(3) for _ in 1:100]  # 100 3D points
