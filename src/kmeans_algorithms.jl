@@ -1,3 +1,36 @@
+"""
+    KMeansAlgorithms
+
+A module containing implementations of K-means clustering algorithms.
+
+This module provides abstract and concrete types for K-means clustering algorithms,
+along with utility functions for cluster assignment and center calculations.
+
+# Types
+- `KMeansAlgorithm`: Abstract type for K-means algorithms. Subtype to write your own implementation
+- `Lloyd`:Implementation of Lloyd's K-means algorithm
+- `BkMeans`: Implementation of the breathing K-means algorithm variant
+
+
+# Functions
+- Call operators for `KMeansAlgorithm`, `Lloyd` and `KMeansPPInit` to perform clustering
+
+# Exports
+- [`KMeansAlgorithm`](@ref)
+- [`Lloyd`](@ref)
+- [`BkMeans`](@ref)
+
+# Usage
+```julia
+using KMeansAlgorithms
+
+# Create a Lloyd's algorithm instance
+lloyd = Lloyd{Vector{Float64}}()
+
+# Run clustering
+results = lloyd(samples, k, init, max_iter, tol, centroid, norm_sqr)
+```
+"""
 module KMeansAlgorithms
 
 using ..Types: NonInteger

@@ -1,3 +1,19 @@
+"""
+    KMeansClustering.Centroid
+
+This module provides abstract and concrete types for centroid calculation.
+
+# Types
+- `CentroidCalculator{V}`: Abstract type for centroid calculators.
+- `EuclideanMeanCentroid{V}`: Concrete type for Euclidean mean centroid calculation.
+
+# Functions
+- Call operators for `CentroidCalculator` and `EuclideanMeanCentroid` to perform centroid calculations
+
+# Exports
+- `CentroidCalculator`
+- `EuclideanMeanCentroid`
+"""
 module Centroid
 
 import Statistics.mean
