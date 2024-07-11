@@ -151,34 +151,37 @@ end
 @testset "KMeans" begin
     # Test the KMeans function with hardcoded data
     inits = [UniformRandomInit, KMeansPPInit]
+    algorithms = [Lloyd, BkMeans]
     for i in 1:2
-        @testset "KMeans with hardcoded data init: $(i == 1 ? "UniformRandomInit" : "KMeans++")" begin
-            samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
-                [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
-            k = 3
-            init = i == 1 ? UniformRandomInit{Vector{Float64}}() : KMeansPPInit{Vector{Float64}}()
-            result = KMeans(samples, k, init=init)
+        for j in 1:2
+            @testset "$(j == 1 ? "KMeans" : "BkMeans") with hardcoded data init: $(i == 1 ? "UniformRandomInit" : "KMeans++")" begin
+                samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
+                    [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
+                k = 3
+                init = i == 1 ? UniformRandomInit{Vector{Float64}}() : KMeansPPInit{Vector{Float64}}()
+                result = KMeans(samples, k, init=init, algorithm=algorithms[j]{Vector{Float64}}())
 
-            @test length(result) == k
+                @test length(result) == k
 
-            for (center, cluster) in result
-                @test typeof(center) == Vector{Float64}
-                @test eltype(cluster) == Vector{Float64}
+                for (center, cluster) in result
+                    @test typeof(center) == Vector{Float64}
+                    @test eltype(cluster) == Vector{Float64}
+                end
             end
-        end
 
-        # Test the KMeans function with randomly generated data
-        @testset "KMeans with random data init: $(i == 1 ? "UniformRandomInit" : "KMeans++")" begin
-            samples = generate_random_points(100, 2)
-            k = 3
-            init = i == 1 ? UniformRandomInit{Vector{Float64}}() : KMeansPPInit{Vector{Float64}}()
-            result = KMeans(samples, k, init=init)
+            # Test the KMeans function with randomly generated data
+            @testset "$(j == 1 ? "KMeans" : "BkMeans") with random data init: $(i == 1 ? "UniformRandomInit" : "KMeans++")" begin
+                samples = generate_random_points(100, 2)
+                k = 3
+                init = i == 1 ? UniformRandomInit{Vector{Float64}}() : KMeansPPInit{Vector{Float64}}()
+                result = KMeans(samples, k, init=init, algorithm=algorithms[j]{Vector{Float64}}())
 
-            @test length(result) == k
+                @test length(result) == k
 
-            for (center, cluster) in result
-                @test typeof(center) == Vector{Float64}
-                @test eltype(cluster) == Vector{Float64}
+                for (center, cluster) in result
+                    @test typeof(center) == Vector{Float64}
+                    @test eltype(cluster) == Vector{Float64}
+                end
             end
         end
     end
@@ -192,7 +195,7 @@ end
 
     for init in inits
         result = KMeans(samples, k, init=init)
-        
+
         @test length(result) == k
 
         for (center, cluster) in result
@@ -268,11 +271,11 @@ end
 
     @testset "Number of clusters less than or equal to 0" begin
         samples = generate_random_points(10, 2)
-        
+
         k = 0
         try
             result = KMeans(samples, k)
-            @test false  
+            @test false
         catch e
             @test isa(e, ArgumentError) && e.msg == "k has to be > 0"
         end
@@ -280,7 +283,7 @@ end
         k = -1
         try
             result = KMeans(samples, k)
-            @test false  
+            @test false
         catch e
             @test isa(e, ArgumentError) && e.msg == "k has to be > 0"
         end
