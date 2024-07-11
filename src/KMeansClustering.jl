@@ -23,6 +23,7 @@ data = [rand(3) for _ in 1:100]  # 100 3D points
 
 # Perform K-means clustering with default parameters
 result = KMeans(data, 5)
+```
 """
 module KMeansClustering
 
