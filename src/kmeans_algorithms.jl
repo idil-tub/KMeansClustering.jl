@@ -1,4 +1,39 @@
+"""
+    KMeansAlgorithms
+
+A module containing implementations of K-means clustering algorithms.
+
+This module provides abstract and concrete types for K-means clustering algorithms,
+along with utility functions for cluster assignment and center calculations.
+
+# Types
+- `KMeansAlgorithm`: Abstract type for K-means algorithms. Subtype to write your own implementation
+- `Lloyd`:Implementation of Lloyd's K-means algorithm
+- `BkMeans`: Implementation of the breathing K-means algorithm variant
+
+
+# Functions
+- Call operators for `KMeansAlgorithm`, `Lloyd` and `KMeansPPInit` to perform clustering
+
+# Exports
+- [`KMeansAlgorithm`](@ref)
+- [`Lloyd`](@ref)
+- [`BkMeans`](@ref)
+
+# Usage
+```julia
+using KMeansAlgorithms
+
+# Create a Lloyd's algorithm instance
+lloyd = Lloyd{Vector{Float64}}()
+
+# Run clustering
+results = lloyd(samples, k, init, max_iter, tol, centroid, norm_sqr)
+```
+"""
 module KMeansAlgorithms
+
+import Distributions.Uniform
 
 using ..Types: NonInteger
 using ..Norm: NormSqr
@@ -303,7 +338,7 @@ function (a::BkMeans{V})(samples::AbstractVector{V}, k::Int64, init::ClusterInit
     end
     gen_random_unit = function()
         dist = Uniform{T}(zero(0), one(1))
-        return V <: AbstractArray ? rand(dist, sizeof(samples[1])) : rand(dist)
+        return V <: AbstractArray ? rand(dist, size(samples[1])) : rand(dist)
     end
     calc_utilities = function(centers)
         total_error = calc_err(centers)
@@ -321,7 +356,7 @@ function (a::BkMeans{V})(samples::AbstractVector{V}, k::Int64, init::ClusterInit
 
     
     err_best = calc_err(centers)
-    c_best = c
+    c_best = centers
 
     m = min(a.m, k)
 

@@ -1,3 +1,33 @@
+"""
+    KMeansClustering.Init
+
+A module providing cluster initialization strategies for clustering algorithms.
+
+This module defines abstract and concrete types for initializing cluster centers,
+which are crucial components of clustering algorithms such as K-means.
+
+# Types
+- `ClusterInit{V}`: Abstract type for cluster initialization strategies
+- `UniformRandomInit{V}`: Uniform random initialization
+- `KMeansPPInit{V}`: K-means++ initialization
+
+# Functions
+- Call operators for `UniformRandomInit` and `KMeansPPInit` to perform initialization
+
+# Exports
+- `ClusterInit`
+- `UniformRandomInit`
+- `KMeansPPInit`
+
+# Example Usage
+```julia
+using KMeansClustering
+
+# Create initialization objects
+uniform_init = UniformRandomInit{Vector{Float64}}()
+kmeans_pp_init = KMeansPPInit{Vector{Float64}}()
+```
+"""
 module Init
 import Distributions.Uniform
 import Distributions.Categorical
@@ -26,7 +56,8 @@ struct MyRandomInit{V<:AbstractVector{<:NonInteger}} <: ClusterInit{V} end
 ```
 See also [`UniformRandomInit`](@ref), [`KMeansPPInit`](@ref)
 """
-abstract type ClusterInit{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} end
+abstract type ClusterInit{V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}} 
+end
 
 
 """

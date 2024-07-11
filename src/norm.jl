@@ -1,3 +1,20 @@
+"""
+    KMeansClustering.Norm
+
+This module defines abstract and concrete types for calculating norms, particularly
+squared norms, which are essential in many clustering and distance-based algorithms.
+
+# Types
+- `NormSqr{V}`: Abstract type for squared norm calculations
+- `EuclideanNormSqr{V}`: Concrete type for squared Euclidean norm
+
+# Functions
+- Call operators for `NormSqr` and `EuclideanNormSqr` to perform norm calculations
+
+# Exports
+- `NormSqr`
+- `EuclideanNormSqr`
+"""
 module Norm
 import LinearAlgebra.norm_sqr as la_norm_sqr
 
