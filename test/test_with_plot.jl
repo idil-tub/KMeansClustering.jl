@@ -87,7 +87,6 @@ function load_wine_data()
     data_path = "test/wine.csv"
 =======
     data_path = "./wine.csv"
->>>>>>> main
     wine_df = CSV.read(data_path, DataFrame)
     y_wine, X_wine = unpack(wine_df, ==(:Wine); rng=123)
     wine_vectors, wine_int_labels = real_data_load(X_wine,y_wine)
