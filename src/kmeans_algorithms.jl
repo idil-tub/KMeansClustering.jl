@@ -57,7 +57,7 @@ Subtypes of `KMeansAlgorithm` are expected to implement specific variants of the
 K-means clustering algorithm, such as Lloyd's algorithm, mini-batch K-means, or 
 other custom methods.
 
-# Examples
+# Example
 ```julia
 # A concrete subtype might be implemented as:
 struct MyAlgorithm{V<:AbstractVector{<:NonInteger}} <: KMeansAlgorithm{V} end
@@ -121,7 +121,7 @@ number of iterations is reached.
 - `V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}`: The type of input samples and cluster centers.
   Can be either a non-integer numeric type or an array of non-integer numeric types.
 
-# Examples
+# Example
 ```julia
 # Create an instance for vector data
 lloyd_kmeans = Lloyd{Vector{Float64}}()
@@ -158,7 +158,7 @@ to perform K-means clustering using Lloyd's algorithm.
 # Throws
 - `ArgumentError`: If `k ≤ 0` or if `k` is greater than the number of samples.
 
-# Examples
+# Example
 ```julia
 lloyd = Lloyd{Vector{Float64}}()
 samples = [rand(3) for _ in 1:100]  # 100 3D points
@@ -254,7 +254,7 @@ Constructs a BkMeans instance with the specified parameters.
 # Throws
 - `ArgumentError`: If either `m` or `eps` is negative.
 
-# Examples
+# Example
 ```julia
 # Create an instance for vector data with default parameters
 bkmeans = BkMeans{Vector{Float64}}()
@@ -300,7 +300,7 @@ quality by iteratively refining the solution through a process of "breathing" (a
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and cluster centers.
 
-# Examples
+# Example
 ```julia
 bkmeans = BkMeans{Vector{Float64}}(5, 0.001)
 samples = [rand(3) for _ in 1:100]  # 100 3D points

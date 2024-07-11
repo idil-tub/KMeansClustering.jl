@@ -36,7 +36,7 @@ centroids are being calculated.
 # Purpose
 Subtypes of `CentroidCalculator` can be used to implement different ways of calculating the centroid for k-Means.
 
-# Examples
+# Example
 ```julia
 # A concrete subtype might be implemented as:
 struct CustomCentroid{V<:AbstractVector{<:NonInteger}} <: CentroidCalculator{V} end
@@ -91,7 +91,7 @@ This centroid calculator is suitable for use with Euclidean distance-based clust
 - `V<:Union{<:NonInteger,AbstractArray{<:NonInteger}}`: The type of input samples and calculated centroids.
   Can be either a non-integer numeric type or an array of non-integer numeric types.
 
-# Examples
+# Example
 ```julia
 # Create an instance for vector data
 euclidean_mean = EuclideanMeanCentroid{Vector{Float64}}()
@@ -120,7 +120,7 @@ to be used as functions to compute cluster centroids.
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and the returned centroid.
 
-# Examples
+# Example
 ```julia
 euclidean_mean = EuclideanMeanCentroid{Vector{Float64}}()
 samples = [rand(3) for _ in 1:10]  # 10 3D points
