@@ -68,7 +68,7 @@ allowing customization of initialization, algorithm, centroid calculation, and d
 - `N`: The number of dimensions if `V` is an array type.
 - `V<:Union{T,AbstractArray{T,N}}`: The type of the input samples and cluster centers.
 
-# Examples
+# Example
 ```julia
 # Basic usage with default parameters
 data = [rand(3) for _ in 1:100]  # 100 3D points
