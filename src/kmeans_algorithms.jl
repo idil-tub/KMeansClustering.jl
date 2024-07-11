@@ -356,7 +356,7 @@ function (a::BkMeans{V})(samples::AbstractVector{V}, k::Int64, init::ClusterInit
 
     
     err_best = calc_err(centers)
-    c_best = c
+    c_best = centers
 
     m = min(a.m, k)
 
