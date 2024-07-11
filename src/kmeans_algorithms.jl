@@ -33,6 +33,8 @@ results = lloyd(samples, k, init, max_iter, tol, centroid, norm_sqr)
 """
 module KMeansAlgorithms
 
+import Distributions.Uniform
+
 using ..Types: NonInteger
 using ..Norm: NormSqr
 using ..Init: ClusterInit
@@ -336,7 +338,7 @@ function (a::BkMeans{V})(samples::AbstractVector{V}, k::Int64, init::ClusterInit
     end
     gen_random_unit = function()
         dist = Uniform{T}(zero(0), one(1))
-        return V <: AbstractArray ? rand(dist, sizeof(samples[1])) : rand(dist)
+        return V <: AbstractArray ? rand(dist, size(samples[1])) : rand(dist)
     end
     calc_utilities = function(centers)
         total_error = calc_err(centers)
