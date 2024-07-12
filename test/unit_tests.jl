@@ -148,12 +148,13 @@ end
     @test isapprox(center, calculated_mean, atol=1e-6)
 end
 
+# Test the KMeans function
 @testset "KMeans" begin
-    # Test the KMeans function with hardcoded data
     inits = [UniformRandomInit, KMeansPPInit]
     algorithms = [Lloyd, BkMeans]
     for i in 1:2
         for j in 1:2
+            # Test the KMeans function with hardcoded data
             @testset "$(j == 1 ? "KMeans" : "BkMeans") with hardcoded data init: $(i == 1 ? "UniformRandomInit" : "KMeans++")" begin
                 samples = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0],
                     [6.0, 7.0], [7.0, 8.0], [8.0, 9.0], [9.0, 10.0], [10.0, 11.0]]
@@ -234,7 +235,17 @@ end
     @test result1 == result2
 end
 
-
+# Robustness Tests
+@testset "Robustness" begin
+    samples = generate_random_points(100, 2)
+    outliers = [[10.0, 10.0], [-10.0, -10.0], [20.0, 20.0]]
+    samples_with_outliers = vcat(samples, outliers)
+    k = 3
+    init = KMeansPPInit{Vector{Float64}}()
+    
+    result = KMeans(samples_with_outliers, k, init=init)
+    @test length(result) == k
+end
 
 
 # Edge cases
@@ -287,5 +298,22 @@ end
         catch e
             @test isa(e, ArgumentError) && e.msg == "k has to be > 0"
         end
+    end
+
+    @testset "Single data point" begin
+        samples = [[1.0, 2.0]]
+        k = 1
+        result = KMeans(samples, k)
+
+        @test length(result) == 1
+    end
+
+    @testset "Single dimension data" begin
+        samples = [[1.0], [2.0], [3.0], [4.0], [5.0]]
+        k = 2
+        init = KMeansPPInit{Vector{Float64}}()
+        result = KMeans(samples, k, init=init)
+
+        @test length(result) == k
     end
 end
