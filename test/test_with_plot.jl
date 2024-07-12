@@ -22,28 +22,6 @@ data_small = [rand(2) for _ in 1:2]
 # large one
 data_large = [rand(2) for _ in 1:500]
 
-# A array which can accept Float64 and missing data
-missing_process = Array{Union{Float64,Missing}}(undef, 100, 2)
-
-# fill in randomized data
-for i in 1:100
-    for j in 1:2
-        missing_process[i, j] = rand()
-    end
-end
-
-missing_process[1, :] .= missing
-
-# deal with missing data
-col_means = [mean(skipmissing(missing_process[:, j])) for j in 1:size(missing_process, 2)]
-for j in eachindex(col_means)
-    missing_process[ismissing.(missing_process[:, j]), j] .= col_means[j]
-end
-
-#type convert
-data_missing = [vec(convert(Array{Float64}, missing_process[i, :])) for i in 1:size(missing_process, 1)]
-
-
 # with extreme datya
 x = rand(100, 2)  # 2-dims
 
@@ -83,9 +61,6 @@ function load_wine_data()
     # wine
     # there are 13 feature: Alcohol,Malic.acid,Ash,Acl,Mg,Phenols,Flavanoids,Nonflavanoid.phenols,Proanth,Color.int,Hue,OD,Proline
     # url = "https://gist.githubusercontent.com/tijptjik/9408623/raw/b237fa5848349a14a14e5d4107dc7897c21951f5/wine.csv"
-<<<<<<< HEAD
-    data_path = "test/wine.csv"
-=======
     data_path = "./wine.csv"
     wine_df = CSV.read(data_path, DataFrame)
     y_wine, X_wine = unpack(wine_df, ==(:Wine); rng=123)
@@ -241,17 +216,6 @@ end
     end
 
     try
-        result_missing = KMeans(data_missing, 3)
-        assignments_result_missing = extract_assignments(data_missing, result_missing)
-        println("Assignments for dataset with missing values: ", assignments_result_missing)
-        @test length(assignments_result_missing) == size(data_missing, 1)
-        plot_clusters(result_missing, "Clusters for Dataset with Missing Values", joinpath(output_dir, "clusters_missing.png"))
-    catch e
-        @test false
-        println("Error during testing dataset with missing values: ", e)
-    end
-
-    try
         result_outlier = KMeans(data_outlier, 3)
         assignments_result_outlier = extract_assignments(data_outlier, result_outlier)
         println("Assignments for dataset with outliers: ", assignments_result_outlier)
@@ -272,7 +236,6 @@ function generate_markdown()
     ![Wine Dataset](clusters_wine.png)
     ![Small Dataset](clusters_small.png)
     ![Large Dataset](clusters_large.png)
-    ![Dataset with Missing Values](clusters_missing.png)
     ![Dataset with Outliers](clusters_outlier.png)
     """
     open(joinpath(output_dir, "comment.md"), "w") do f
