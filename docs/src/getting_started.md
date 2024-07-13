@@ -29,10 +29,14 @@ X_iris_vec = [Vector{Float64}(col) for col in eachcol(X_iris)]
 
 # Execute KMeans clustering
 k = 3
-max_iter = 100
-tol = 0.0001
-Initializer = KMeansPPInit{Vector{Float64}}()
-clusters = KMeans(X_iris_vec, k; init = Initializer, max_iter = max_iter, tol = tol)
+clusters = KMeans(X_iris_vec, k,
+    init=KMeansPPInit{Vector{Float64}}(),
+    max_iter=400,
+    tol=0.001,
+    algorithm=BkMeans{Vector{Float64}}(5, 0.001),
+    centroid=EuclideanMeanCentroid{Vector{Float64}}(),
+    normSqr=EuclideanNormSqr{Vector{Float64}}()
+)
 clusters # hide
 ```
 
@@ -100,10 +104,14 @@ X_normalized_vec = [Vector{Float64}(col) for col in eachcol(X_normalized)]
 
 # Execute KMeans clustering
 k = 3
-max_iter = 100
-tol = 0.0001
-Initializer = KMeansPPInit{Vector{Float64}}()
-clusters = KMeans(X_normalized_vec, k; init = Initializer, max_iter = max_iter, tol = tol)
+clusters = KMeans(X_normalized_vec, k,
+    init=KMeansPPInit{Vector{Float64}}(),
+    max_iter=400,
+    tol=0.001,
+    algorithm=BkMeans{Vector{Float64}}(5, 0.001),
+    centroid=EuclideanMeanCentroid{Vector{Float64}}(),
+    normSqr=EuclideanNormSqr{Vector{Float64}}()
+)
 clusters # hide
 ```
 
@@ -160,3 +168,150 @@ end
 savefig(p, "high_dim_kmeans_wine.svg"); nothing # hide
 ```
 ![](high_dim_kmeans_wine.svg)
+
+## Comparison of KMean, KMean++ and BKMean
+
+Here, we present a comparative analysis demonstrating the effectiveness of KMeans++ and BKMeans algorithms using the GMD5X5 dataset. We will showcase visualizations of the results and the SSE (Sum of Squared Errors) values obtained.
+
+[SSE](https://en.wikipedia.org/wiki/Residual_sum_of_squares)(Sum of Squared Errors) is a measure used to evaluate the performance of clustering algorithms. It calculates the sum of the squared distances between each data point and the centroid of its assigned cluster. Lower SSE values indicate better clustering as they reflect tighter and more compact clusters.
+
+```@example 3
+using HTTP # hide
+using CSV # hide
+using DataFrames # hide
+using KMeansClustering # hide
+using Plots # hide
+
+data_path = ".\\gmd5x5.csv" # hide
+url = "https://raw.githubusercontent.com/gittar/breathing-k-means/master/data/gmd5x5.csv" # hide
+HTTP.download(url, data_path) # hide
+
+gmd55_df = CSV.read(data_path, DataFrame; header=false) # hide
+
+# Convert to vector  # hide
+gmd55_df_vec = [Vector{Float64}(row) for row in eachrow(gmd55_df)] # hide
+
+# Execute KMeans clustering  # hide
+k = 50 # hide
+clusters= KMeans(gmd55_df_vec, k, # hide
+    max_iter=400, # hide
+    tol=0.001, # hide
+    centroid=EuclideanMeanCentroid{Vector{Float64}}(), # hide
+    normSqr=EuclideanNormSqr{Vector{Float64}}() # hide
+) # hide
+
+clusters_pp = KMeans(gmd55_df_vec, k, # hide
+    init=KMeansPPInit{Vector{Float64}}(), # hide
+    max_iter=400, # hide
+    tol=0.001, # hide
+    centroid=EuclideanMeanCentroid{Vector{Float64}}(), # hide
+    normSqr=EuclideanNormSqr{Vector{Float64}}() # hide
+) # hide
+
+clusters_pp_b = KMeans(gmd55_df_vec, k, # hide
+    init=KMeansPPInit{Vector{Float64}}(), # hide
+    max_iter=400, # hide
+    tol=0.001, # hide
+    algorithm=BkMeans{Vector{Float64}}(5, 0.001), # hide
+    centroid=EuclideanMeanCentroid{Vector{Float64}}(), # hide
+    normSqr=EuclideanNormSqr{Vector{Float64}}() # hide
+) # hide
+
+function plot_result(clusters, title, filename) # hide
+    # Extract and combine centers and clusters for the purpose of using t-SNE # hide
+    combined_centers_clusters = Matrix{Float64}(undef, 0, length(first(first(clusters)[2]))) # hide
+    centers_index = Int[] # hide
+    clusters_assignments = Int[] # hide
+    count_index = 1 # hide
+    sse = 0.0 # hide
+    rng = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0] # hide
+    count_center = zeros(5, 5) # hide
+    for (i, (centers, members)) in enumerate(clusters) # hide
+
+        combined_centers_clusters = vcat(combined_centers_clusters, centers') # hide
+        push!(centers_index, count_index) # hide
+
+        xi = centers[1] # hide
+        yi = centers[2] # hide
+        for m in 1:length(rng)-1 # hide
+            for n in 1:length(rng)-1 # hide
+                if (rng[n] < xi < rng[n+1]) && (rng[m] < yi < rng[m+1]) # hide
+                    count_center[length(rng)-m, n] += 1 # hide
+                end # hide
+            end # hide
+        end # hide
+        
+        for member in members # hide
+            combined_centers_clusters = vcat(combined_centers_clusters, member') # hide
+            push!(clusters_assignments, i) # hide
+            count_index += 1 # hide
+            sse += sum((member .- centers).^ 2) # hide
+        end # hide
+
+        count_index += 1 # hide
+    end # hide
+
+    combined_centers_clusters = [Vector{Float64}(col) for col in eachcol(combined_centers_clusters')] # hide
+
+    p = plot(title="$title \n SSE:$sse", legend=:topright) # hide
+    global result_centers = Matrix{Float64}(undef, 0, 2) # hide
+    global result_members_matrix = Matrix{Float64}(undef, 0, 2) # hide
+
+    for i in 1:k # hide
+        result_members = [] # hide
+        
+        result_centers = vcat(result_centers, combined_centers_clusters[centers_index[i]]') # hide
+
+        for j in (centers_index[i]+1):(i != k ? (centers_index[i+1]-1) : length(combined_centers_clusters) ) # hide
+           
+            push!(result_members, combined_centers_clusters[j]) # hide
+            result_members_matrix = vcat(result_members_matrix, combined_centers_clusters[j]') # hide
+        end # hide
+        
+        # Plot cluster points # hide
+        mem_x = [result_members[m][1] for m in 1:length(result_members)] # hide
+        mem_y = [result_members[m][2] for m in 1:length(result_members)] # hide
+
+        scatter!(p, mem_x, mem_y, color=RGB(0.470588, 0.776471, 0.474510) , markersize=3, label=false, markerstrokewidth = 0.5) # hide
+
+        # Plot cluster center # hide
+        for m in 1:length(rng)-1 # hide
+            for n in 1:length(rng)-1 # hide
+                xi = [combined_centers_clusters[centers_index[i]]][1][1] # hide
+                yi = [combined_centers_clusters[centers_index[i]]][1][2] # hide
+                if (rng[n] < xi < rng[n+1]) && (rng[m] < yi < rng[m+1]) && count_center[length(rng)-m, n] == 1 # hide
+                    scatter!(p, (xi, yi), markersize=15, markershape=:circle, markercolor=RGB(1.0, 0.498039, 0.054902), alpha=0.6, label=false) # hide
+                    scatter!(p, (xi, yi), color=RGB(0.839216, 0.152941, 0.156863), marker=:star, markersize=8, label=false) # hide
+                elseif (rng[n] < xi < rng[n+1]) && (rng[m] < yi < rng[m+1]) && count_center[length(rng)-m, n] >= 3 # hide
+                    scatter!(p, (xi, yi), markersize=15, markershape=:circle, markercolor=RGB(0.121569, 0.466667, 0.705882), alpha=0.5, label=false) # hide
+                    scatter!(p, (xi, yi), color=RGB(0.839216, 0.152941, 0.156863), marker=:star, markersize=8, label=false) # hide
+                else # hide
+                    scatter!(p, (xi, yi), color=RGB(0.839216, 0.152941, 0.156863), marker=:star, markersize=8, label=false) # hide
+                end # hide
+            end # hide
+        end # hide
+    end # hide
+    savefig(p, "$filename.svg"); nothing # hide
+end # hide
+```
+
+
+The following is only use KMean without KMean++ and BKMean.
+```@example 3
+plot_result(clusters,"KMean - gmd55", "kmean")  # hide
+```
+![](kmean.svg)
+
+This implementation utilizes KMeans with KMeans++ initialization. The resulting clusters demonstrate improved quality, reflected in a slightly lower SSE.
+
+```@example 3
+plot_result(clusters_pp,"KMean with KMean++ - gmd55", "kmean_pp") # hide
+```
+![](kmean_pp.svg)
+
+When employing KMeans with KMeans++ and BKMeans, a significant enhancement in clustering performance is evident.
+
+```@example 3
+plot_result(clusters_pp_b,"KMean with KMean++ and BKMean - gmd55", "kmean_pp_b") # hide
+```
+![](kmean_pp_b.svg)
