@@ -5,6 +5,6 @@ using Test
     include("test_with_plot.jl")
 end
 
-@testset "unittests.jl" begin
-    include("unittests.jl")
+@testset "unit_tests.jl" begin
+    include("unit_tests.jl")
 end
